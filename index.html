@@ -100,8 +100,10 @@
   <section id="screen-password" class="screen">
     <h1 class="password-title">Сейф с наградой</h1>
     <p class="password-lead">
-      Три ячейки — три символа. Сначала видна только <strong>первая</strong> загадка: введи верный первый символ в левое поле —
-      вторая загадка прояснится. Потом второй символ — откроется третья. Регистр буквы не важен.
+      <strong>Сверху</strong> — сейф на три символа (см. загадки). <strong>Ниже</strong> — три колонки: в первой всё
+      сразу видно; во второй и третьей загадка скрыта сильным блюром, пока не введёшь <strong>ровно 4 цифры</strong> в поле
+      по центру. Три &laquo;официальные&raquo; попытки на сейф — с шутками, на деле <strong>попыток бесконечно</strong>.
+      В коде сейфа буква — латинская, регистр не важен.
     </p>
 
     <div class="safe" aria-label="Три символа сейфа">
@@ -131,7 +133,6 @@
             autocapitalize="off"
             autocomplete="off"
             spellcheck="false"
-            disabled
             aria-label="Второй символ пароля"
           />
         </label>
@@ -146,7 +147,6 @@
             autocapitalize="off"
             autocomplete="off"
             spellcheck="false"
-            disabled
             aria-label="Третий символ пароля"
           />
         </label>
@@ -154,46 +154,77 @@
     </div>
 
     <form id="password-form" class="password-form" autocomplete="off">
-      <button type="submit" class="btn">Открыть сейф</button>
+      <button type="submit" class="btn" id="btn-open-vault">Открыть сейф</button>
+      <button type="button" class="btn btn--claim-gift password-form__claim" id="btn-claim-gift" hidden>
+        Забрать подарок
+      </button>
     </form>
     <p id="password-msg" class="password-msg" role="status"></p>
 
     <div class="riddle-stages">
       <article id="riddle-stage-1" class="riddle-stage riddle-stage--revealed">
         <div class="riddle-stage__body">
-          <h2 class="riddle-stage__title">🎭 Загадка №1</h2>
-          <p class="riddle-stage__meta">Подсказка на <strong>первый</strong> символ пароля</p>
+          <h2 class="riddle-stage__title">Загадка</h2>
           <div class="riddle-stage__verses">
-            <p>
-              Я похожа на полубублик, который откусили с улыбкой. В алфавите я третья, мои соседи — B и D, а учёные зовут
-              меня, когда свет мчится наперегонки. Я не замкнута в круг, но всегда в отличном настроении! Какая я буква?
-            </p>
+            <p>Я — то, что останется после,<br />Когда догорит костер.<br />Я в камне, который не просит,<br />Чтоб кто-то его растер.</p>
+            <p>Но в этой броне прозрачной,<br />Где крепость и холод льда,<br />Я вешу чуть-чуть иначе,<br />Чем общая череда.</p>
+            <p>Во мне есть довесок тайный,<br />Тяжелый незримый груз,<br />Он — голос мой необычный<br />И мой особенный пульс.</p>
           </div>
         </div>
       </article>
 
       <article id="riddle-stage-2" class="riddle-stage riddle-stage--locked">
+        <div class="riddle-stage__unlock-overlay" aria-hidden="false">
+          <div class="riddle-stage__unlock-box">
+            <span class="riddle-stage__unlock-label">Ключ — ровно 4 цифры</span>
+            <input
+              id="riddle-key-2"
+              type="text"
+              class="riddle-unlock-input"
+              maxlength="4"
+              inputmode="numeric"
+              pattern="[0-9]*"
+              autocomplete="off"
+              spellcheck="false"
+              placeholder="0 0 0 0"
+              aria-label="Ключ из четырёх цифр для второй загадки"
+            />
+          </div>
+        </div>
         <div class="riddle-stage__body">
-          <h2 class="riddle-stage__title">🎭 Загадка №2</h2>
-          <p class="riddle-stage__meta">Подсказка на <strong>второй</strong> символ пароля</p>
+          <h2 class="riddle-stage__title">Загадка</h2>
           <div class="riddle-stage__verses">
-            <p>
-              Я обожаю одиночество, но без меня не начнётся ни один танец, ни игра, ни даже счёт овец перед сном. Я стою
-              впереди всех, как указательный палец, и гордо заявляю: «Я первый!» Кто я?
-            </p>
+            <p>Я в каждом глубоком вдохе,<br />Когда ты идешь в глубину.<br />На грани, на самом выдохе,<br />Я чувствую тишину.</p>
+            <p>Я кровью драконьей пролился<br />На камни Сокотры сухой.<br />Мой брат — эталон двенадцатый,<br />А я — лишь процент небольшой.</p>
+            <p>Я метка твоя природная,<br />Автограф в твоей крови.<br />По мне узнают подлинность<br />И правду — как ни зови.</p>
           </div>
         </div>
       </article>
 
       <article id="riddle-stage-3" class="riddle-stage riddle-stage--locked">
+        <div class="riddle-stage__unlock-overlay" aria-hidden="false">
+          <div class="riddle-stage__unlock-box">
+            <span class="riddle-stage__unlock-label">Ключ — ровно 4 цифры</span>
+            <input
+              id="riddle-key-3"
+              type="text"
+              class="riddle-unlock-input"
+              maxlength="4"
+              inputmode="numeric"
+              pattern="[0-9]*"
+              autocomplete="off"
+              spellcheck="false"
+              placeholder="0 0 0 0"
+              aria-label="Ключ из четырёх цифр для третьей загадки"
+            />
+          </div>
+        </div>
         <div class="riddle-stage__body">
-          <h2 class="riddle-stage__title">🎭 Загадка №3</h2>
-          <p class="riddle-stage__meta">Подсказка на <strong>третий</strong> символ пароля</p>
+          <h2 class="riddle-stage__title">Загадка</h2>
           <div class="riddle-stage__verses">
-            <p>
-              Я не квадрат, но у меня всё устойчиво: три ножки у табуретки, три цвета светофора, три поросёнка и три
-              желания у золотой рыбки! Сказки меня обожают, а без меня даже стул шатается. Какая я цифра?
-            </p>
+            <p>Возьми элемент, что в основе<br />Дыханья и твердых скал.<br />Его в драгоценном камне<br />Ты долго и жадно искал.</p>
+            <p>Прибавь к нему то, что следует<br />За дюжиной строгой в ряд.<br />О нем суеверный ведает,<br />Отводя испуганный взгляд.</p>
+            <p>Возьми у любимого букву одну,<br />Что в имени рода взошла,<br />И нашу с тобой высоту и весну,<br />Где вместе нас крыша свела.</p>
           </div>
         </div>
       </article>
