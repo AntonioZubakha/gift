@@ -8,10 +8,14 @@
 </head>
 <body>
   <div class="noise" aria-hidden="true"></div>
+  <div class="vignette" aria-hidden="true"></div>
 
   <section id="screen-game" class="screen screen--active">
     <header class="hud">
       <div class="hud__title glitch" data-text="CAT CHAOS">CAT CHAOS</div>
+      <p id="absurd-ticker" class="absurd-ticker" aria-live="polite">
+        Добро пожаловать в театр абсурда. Правил нет, коты есть.
+      </p>
       <div class="hud__stats">
         <span>Level: <strong id="stat-level">1</strong></span>
         <span>Cats fed: <strong id="stat-fed">0</strong></span>
@@ -22,6 +26,7 @@
     </header>
 
     <div id="playfield" class="playfield">
+      <div id="playfield-fx" class="playfield-fx" aria-hidden="true"></div>
       <img
         id="food"
         class="food draggable"
@@ -45,16 +50,18 @@
     <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
     <div id="level-overlay" class="overlay overlay--hidden">
-      <div class="overlay__box">
-        <p>Congratulations!</p>
-        <p>You handled the cat chaos.</p>
-        <p>Next level.</p>
+      <div class="overlay__box overlay__box--absurd">
+        <p id="overlay-l1">Уровень пройден!</p>
+        <p id="overlay-l2">Коты в шоке. Вы — тоже.</p>
+        <p id="overlay-l3">Готовим следующий акт…</p>
       </div>
     </div>
   </section>
 
-  <section id="screen-win" class="screen">
+  <section id="screen-win" class="screen screen--win">
+    <div id="win-fx" class="win-fx" aria-hidden="true"></div>
     <div class="win-card glitch" data-text="YOU SURVIVED THE CAT CHAOS">YOU SURVIVED THE CAT CHAOS</div>
+    <p id="win-sub" class="win-sub">Аплодисменты слышны только в параллельной вселенной.</p>
     <button type="button" id="btn-unlock" class="btn btn--unlock">Открыть подарок</button>
   </section>
 

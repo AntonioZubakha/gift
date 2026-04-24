@@ -34,6 +34,223 @@
       .toLowerCase();
   }
 
+  const pick = (arr) => arr[(Math.random() * arr.length) | 0];
+  const maybe = (p, fn) => {
+    if (Math.random() < p) fn();
+  };
+
+  const QUIPS_FEED = [
+    'Ням. Кот доволен. Физика — нет.',
+    'Один кот меньше. Зато драма больше.',
+    'Корм принят. Жалоб нет. Законов тоже.',
+    'Кот поел. Вселенная всё ещё не объяснилась.',
+    'Это был не кот. Это был акт голодного реализма.',
+  ];
+  const QUIPS_PLOP = [
+    'Инцидент зафиксирован. Мораль — по желанию.',
+    'Природа напомнила о себе. Грубо.',
+    'Новый артефакт на поле боя.',
+    'Плотность абсурда ↑',
+    'Кто-то оставил «визитку».',
+  ];
+  const QUIPS_FLUSH = [
+    'Чистота. Относительная. Как и всё здесь.',
+    'Ведро герой дня.',
+    'Утилизировано с достоинством.',
+    'Пропало без следа. Как смысл.',
+    'Хьюстон, проблема… решена?',
+  ];
+  const QUIPS_SPAWN = [
+    '+1 кот. −1 покой.',
+    'Ещё один участник без репетиции.',
+    'Кот материализовался. Законы ждут в коридоре.',
+    'Пополнение. Зал аплодирует никто.',
+  ];
+  const QUIPS_MANY_CATS = [
+    'Котов столько, что они уже выбирают президента.',
+    'Это не уровень — это митинг с усами.',
+    'Скорость кормления: критически ниже скорости котов.',
+    'Ты кормишь. Они множатся. Всё по плану без плана.',
+  ];
+  const QUIPS_MANY_POOPS = [
+    'Ландшафт стал… выразительным.',
+    'Тут уже нужен не ведро, а археолог.',
+    'Ситуация перешла в жанр «трагикомедия».',
+    'Эскалация одобрена сценарием.',
+  ];
+  const QUIPS_IDLE = [
+    'Подсказка: коты не читают инструкции.',
+    'Еда слева внизу. Смысл — где-то в центре.',
+    'Ведро любит путешествовать. Какашки — нет.',
+    'Собака — это Ctrl+Z для котов.',
+    'Если страшно — жми жёлтую кнопку. Если смешно — тоже.',
+    'Этот уровень сертифицирован Министерством абсурда.',
+    'Ты не проиграл, пока не начал драматически вздыхать.',
+  ];
+  const OVERLAY_LINES = [
+    { l1: 'Уровень пройден!', l2: 'Коты в ауте. Зрители — тоже.', l3: 'Следующий акт через 2 секунды.' },
+    { l1: 'Браво! Шекспир бы заплакал.', l2: 'Или засмеялся. Он такой.', l3: 'Дальше — только хуже. В хорошем смысле.' },
+    { l1: 'Победа условная.', l2: 'Но аплодисменты — безусловные.', l3: 'Готовься к новой волне хаоса.' },
+    { l1: 'Куратор доволен.', l2: '(Куратора не существует.)', l3: 'Следующий уровень уже в кулисах.' },
+  ];
+  const WIN_SUBS = [
+    'Титры длиннее самой игры.',
+    'Теперь ты официально в списках театра.',
+    'Можно отдыхать. Коты — нет.',
+    'Сертификат «пережил котохаос» выдаётся мысленно.',
+  ];
+  const DOG_LABELS = [
+    'ВЫПУСТИТЬ СОБАКУ',
+    'ЮРИДИЧЕСКИ КОРРЕКТНЫЙ ЛАЙ',
+    'КНОПКА «СТРАХ И ТРЕПЕТ»',
+    'ЛАЙ ВЫСШЕЙ ИНСТАНЦИИ',
+    'СОБАКА.EXE',
+    'РЕЖИМ: ПАНИКА',
+  ];
+  const PASSWORD_EXTRA_WRONG = [
+    'Бип. Неверно. Бип. (мы роботы-абсурда)',
+    'Близко. Нет, ладно, не близко.',
+    'Пароль в другом замке. Шутка. Просто неверно.',
+    'Драматическая пауза… всё ещё неверно.',
+  ];
+
+  let sfxCtx = null;
+  function sfxCtxGet() {
+    if (!sfxCtx) {
+      try {
+        sfxCtx = new (window.AudioContext || window.webkitAudioContext)();
+      } catch (_) {
+        return null;
+      }
+    }
+    if (sfxCtx.state === 'suspended') sfxCtx.resume();
+    return sfxCtx;
+  }
+
+  document.body.addEventListener(
+    'pointerdown',
+    () => {
+      const c = sfxCtxGet();
+      if (c) c.resume();
+    },
+    { once: true },
+  );
+
+  function sfx(kind) {
+    const ctx = sfxCtxGet();
+    if (!ctx) return;
+    const t0 = ctx.currentTime;
+    const bus = ctx.createGain();
+    bus.gain.value = 0.32;
+    bus.connect(ctx.destination);
+
+    function blip(freq, dur, type, vol, delay) {
+      const t = t0 + (delay || 0);
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.type = type;
+      o.frequency.setValueAtTime(freq, t);
+      g.gain.setValueAtTime(vol, t);
+      g.gain.exponentialRampToValueAtTime(0.008, t + dur);
+      o.connect(g);
+      g.connect(bus);
+      o.start(t);
+      o.stop(t + dur + 0.02);
+    }
+
+    switch (kind) {
+      case 'feed':
+        blip(380, 0.05, 'triangle', 0.14, 0);
+        blip(720, 0.07, 'sine', 0.1, 0.04);
+        blip(960, 0.06, 'triangle', 0.06, 0.08);
+        break;
+      case 'plop':
+        blip(95, 0.14, 'square', 0.09, 0);
+        blip(55, 0.18, 'sine', 0.11, 0.02);
+        break;
+      case 'flush':
+        blip(320, 0.06, 'sawtooth', 0.08, 0);
+        blip(180, 0.14, 'triangle', 0.1, 0.05);
+        blip(440, 0.08, 'sine', 0.05, 0.1);
+        break;
+      case 'level':
+        blip(523, 0.16, 'triangle', 0.1, 0);
+        blip(659, 0.16, 'triangle', 0.09, 0.1);
+        blip(784, 0.2, 'triangle', 0.1, 0.2);
+        break;
+      case 'spawn':
+        blip(880, 0.035, 'sine', 0.06, 0);
+        break;
+      case 'wrong':
+        blip(110, 0.22, 'sawtooth', 0.12, 0);
+        blip(75, 0.18, 'square', 0.08, 0.08);
+        break;
+      case 'win':
+        blip(392, 0.18, 'triangle', 0.1, 0);
+        blip(494, 0.18, 'triangle', 0.09, 0.08);
+        blip(587, 0.22, 'triangle', 0.1, 0.16);
+        blip(784, 0.28, 'triangle', 0.08, 0.24);
+        break;
+      case 'boing':
+        blip(200, 0.08, 'triangle', 0.12, 0);
+        blip(350, 0.1, 'sine', 0.08, 0.04);
+        break;
+      default:
+        break;
+    }
+  }
+
+  function bodyShake() {
+    document.body.classList.remove('body--shake');
+    void document.body.offsetWidth;
+    document.body.classList.add('body--shake');
+    window.setTimeout(() => document.body.classList.remove('body--shake'), 450);
+  }
+
+  function playfieldFlash() {
+    playfield.classList.remove('playfield--impact');
+    void playfield.offsetWidth;
+    playfield.classList.add('playfield--impact');
+    window.setTimeout(() => playfield.classList.remove('playfield--impact'), 380);
+  }
+
+  function setAbsurdTicker(text) {
+    const el = document.getElementById('absurd-ticker');
+    if (el) el.textContent = text;
+  }
+
+  function burstEmojis(emojis, n, container) {
+    const fx = container || document.getElementById('playfield-fx');
+    if (!fx) return;
+    const w = fx.clientWidth || 320;
+    const h = fx.clientHeight || 240;
+    for (let i = 0; i < n; i += 1) {
+      const sp = document.createElement('span');
+      sp.className = 'fx-emoji';
+      sp.textContent = pick(emojis);
+      sp.style.left = `${10 + Math.random() * (w - 40)}px`;
+      sp.style.top = `${10 + Math.random() * (h - 40)}px`;
+      const dx = (Math.random() - 0.5) * 120;
+      const dy = -80 - Math.random() * 100;
+      sp.style.setProperty('--fx-dx', `${dx}px`);
+      sp.style.setProperty('--fx-dy', `${dy}px`);
+      fx.appendChild(sp);
+      window.setTimeout(() => sp.remove(), 1200);
+    }
+  }
+
+  let dogLabelSpin = 0;
+  let absurdIdleTimer = null;
+
+  function startAbsurdIdle() {
+    if (absurdIdleTimer) clearInterval(absurdIdleTimer);
+    absurdIdleTimer = window.setInterval(() => {
+      if (!screenGame.classList.contains('screen--active') || gameState.gameWon) return;
+      if (gameState.levelCompleting) return;
+      maybe(0.55, () => setAbsurdTicker(pick(QUIPS_IDLE)));
+    }, 14000);
+  }
+
   let nextId = 1;
 
   const gameState = {
@@ -299,6 +516,16 @@
     screenGame.classList.toggle('screen--active', name === 'game');
     screenWin.classList.toggle('screen--active', name === 'win');
     screenPassword.classList.toggle('screen--active', name === 'password');
+    if (name === 'win') {
+      sfx('win');
+      bodyShake();
+      const ws = document.getElementById('win-sub');
+      if (ws) ws.textContent = pick(WIN_SUBS);
+      const wf = document.getElementById('win-fx');
+      window.setTimeout(() => {
+        burstEmojis(['🎉', '🐱', '🎊', '✨', '😵', '🏆'], 18, wf);
+      }, 80);
+    }
   }
 
   function setToast(text, durationMs) {
@@ -320,9 +547,11 @@
     document.getElementById('dogs-left-label').textContent = String(gameState.dogsLeft);
 
     if (gameState.cats.length >= TOO_MANY_CATS) {
-      setToast('Too many cats.\nFeed them faster.', 0);
+      setToast(pick(QUIPS_MANY_CATS), 0);
+      maybe(0.08, () => sfx('wrong'));
     } else if (gameState.poops.length >= TOO_MANY_POOPS) {
-      setToast('This escalated quickly.', 0);
+      setToast(pick(QUIPS_MANY_POOPS), 0);
+      maybe(0.08, () => sfx('plop'));
     } else if (!gameState.levelCompleting) {
       setToast('', 0);
     }
@@ -331,7 +560,11 @@
   }
 
   function updateDogButton() {
-    btnDog.textContent = 'RELEASE THE DOG';
+    if (gameState.dogsLeft <= 0 || gameState.dogCooldown) {
+      btnDog.textContent = gameState.dogsLeft <= 0 ? 'СОБАКИ ЗАКОНЧИЛИСЬ (сюжетно)' : 'СОБАКА ПЕРЕЗАРЯЖАЕТСЯ…';
+    } else {
+      btnDog.textContent = DOG_LABELS[dogLabelSpin % DOG_LABELS.length];
+    }
     btnDog.disabled = gameState.dogsLeft <= 0 || gameState.dogCooldown;
   }
 
@@ -352,10 +585,15 @@
     cat.el.remove();
   }
 
-  function removePoop(poop) {
+  function removePoop(poop, opts) {
     const i = gameState.poops.indexOf(poop);
     if (i !== -1) gameState.poops.splice(i, 1);
     poop.el.remove();
+    if (opts && opts.fromBin && !opts.quiet) {
+      sfx('flush');
+      setAbsurdTicker(pick(QUIPS_FLUSH));
+      maybe(0.35, () => burstEmojis(['✨', '🧹', '♻️', '✓'], 4));
+    }
   }
 
   function clearAllEntities() {
@@ -384,13 +622,14 @@
   function playBarkSynth() {
     try {
       const ctx = new (window.AudioContext || window.webkitAudioContext)();
-      const dur = 0.18;
+      const dur = 0.16 + Math.random() * 0.08;
+      const f0 = 340 + Math.random() * 140;
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(420, ctx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(90, ctx.currentTime + dur);
-      gain.gain.setValueAtTime(0.2, ctx.currentTime);
+      osc.frequency.setValueAtTime(f0, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(70 + Math.random() * 40, ctx.currentTime + dur);
+      gain.gain.setValueAtTime(0.18 + Math.random() * 0.06, ctx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + dur);
       osc.connect(gain);
       gain.connect(ctx.destination);
@@ -450,6 +689,9 @@
     el.style.transform = `translate(${x}px, ${y}px)`;
     gameState.cats.push(cat);
     schedulePoopAttempts(cat);
+    maybe(0.12, () => sfx('spawn'));
+    maybe(0.14, () => setAbsurdTicker(pick(QUIPS_SPAWN)));
+    maybe(0.08, () => burstEmojis(['🐱', '❓', '➕'], 2));
     updateHud();
     tryCheckLevelClear();
   }
@@ -477,6 +719,10 @@
     };
     el.style.transform = `translate(${px}px, ${py}px)`;
     gameState.poops.push(poop);
+    sfx('plop');
+    playfieldFlash();
+    setAbsurdTicker(pick(QUIPS_PLOP));
+    maybe(0.4, () => burstEmojis(['💩', '❗', '📎'], 3));
     updateHud();
     tryCheckLevelClear();
   }
@@ -484,6 +730,9 @@
   function feedCatAt(cat) {
     clearFoodOverlapWatch();
     gameState.catsFed += 1;
+    sfx('feed');
+    setAbsurdTicker(pick(QUIPS_FEED));
+    maybe(0.45, () => burstEmojis(['😺', '🍽️', '✨', '⭐'], 5));
     removeCat(cat);
     updateHud();
     tryCheckLevelClear();
@@ -510,6 +759,18 @@
     if (gameState.levelCompleting || gameState.gameWon) return;
     gameState.levelCompleting = true;
     clearSpawnTimer();
+
+    sfx('level');
+    bodyShake();
+    playfieldFlash();
+    burstEmojis(['🎭', '✨', '🏆', '👏', '😵'], 10);
+    const lines = pick(OVERLAY_LINES);
+    const o1 = document.getElementById('overlay-l1');
+    const o2 = document.getElementById('overlay-l2');
+    const o3 = document.getElementById('overlay-l3');
+    if (o1) o1.textContent = lines.l1;
+    if (o2) o2.textContent = lines.l2;
+    if (o3) o3.textContent = lines.l3;
 
     levelOverlay.classList.remove('overlay--hidden');
 
@@ -538,6 +799,9 @@
     const cfg = getLevelConfig();
     for (let i = 0; i < 3; i += 1) spawnCat();
     gameState.spawnTimerId = window.setInterval(onSpawnTick, cfg.spawnMs);
+    sfx('boing');
+    setAbsurdTicker(`Уровень ${gameState.level}. Занавес вверх. Коты вниз.`);
+    startAbsurdIdle();
     updateHud();
   }
 
@@ -552,11 +816,16 @@
 
   function activateNormalDog() {
     if (gameState.dogsLeft <= 0 || gameState.dogCooldown) return;
+    dogLabelSpin += 1;
     gameState.dogsLeft -= 1;
     gameState.dogCooldown = true;
     btnDog.disabled = true;
     updateHud();
 
+    bodyShake();
+    playfieldFlash();
+    setAbsurdTicker('СОБАКА. Сцена. Хаос. Держись.');
+    burstEmojis(['🐕', '‼️', '💨', '🔊'], 8);
     playBark();
     showDogGif();
 
@@ -651,10 +920,12 @@
     if (!trashDragging) return;
     const tr = trash.getBoundingClientRect();
     let removed = false;
+    let flushN = 0;
     for (const poop of gameState.poops.slice()) {
       const pr = poop.el.getBoundingClientRect();
       if (rectsOverlap(tr, pr)) {
-        removePoop(poop);
+        removePoop(poop, { fromBin: true, quiet: flushN > 0 });
+        flushN += 1;
         removed = true;
       }
     }
@@ -838,6 +1109,8 @@
     if (val === MAIN_PASSWORD) {
       msg.textContent = '';
       gameState.passwordAttempts = 0;
+      sfx('win');
+      setAbsurdTicker('Доступ. Или иллюзия доступа. В любом случае — молодец.');
       if (GIFT_EXTERNAL_URL && GIFT_EXTERNAL_URL.length > 0) {
         window.open(GIFT_EXTERNAL_URL, '_blank', 'noopener,noreferrer');
       }
@@ -856,8 +1129,13 @@
     }
 
     gameState.passwordAttempts += 1;
+    sfx('wrong');
     const i = gameState.passwordAttempts;
-    msg.textContent = i <= 3 ? WRONG_PASSWORD_MSG[i - 1] : WRONG_PASSWORD_MSG_AFTER;
+    let line = i <= 3 ? WRONG_PASSWORD_MSG[i - 1] : WRONG_PASSWORD_MSG_AFTER;
+    if (Math.random() < 0.5) {
+      line = `${line}\n${pick(PASSWORD_EXTRA_WRONG)}`;
+    }
+    msg.textContent = line;
   });
 
   setupTrashDrag();
