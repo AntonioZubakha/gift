@@ -4,12 +4,22 @@
   const CAT_GIFS = Array.from({ length: 6 }, (_, i) => `assets/cats/cat${i + 1}.gif`);
   const CAT_SIZE = Math.round(72 * 1.5);
 
+  /** Три уровня: сложность строго растёт (1 < 2 < 3). */
+  const MAX_LEVEL = 3;
   const LEVEL_CFG = {
-    1: { poopChance: 0, spawnMs: 2000 },
-    2: { poopChance: 0.1, spawnMs: 2000 },
-    3: { poopChance: 0.15, spawnMs: 1800 },
-    4: { poopChance: 0.2, spawnMs: 1600 },
-    5: { poopChance: 0.25, spawnMs: 1500 },
+    1: { poopChance: 0, spawnMs: 2200, poopDelayMin: 0, poopDelayMax: 0 },
+    2: {
+      poopChance: 0.38,
+      spawnMs: 1850,
+      poopDelayMin: 2200,
+      poopDelayMax: 3800,
+    },
+    3: {
+      poopChance: 0.52,
+      spawnMs: 1450,
+      poopDelayMin: 1600,
+      poopDelayMax: 3000,
+    },
   };
 
   const MAIN_PASSWORD = 'c13';
@@ -595,7 +605,7 @@
   const screenPassword = document.getElementById('screen-password');
 
   function getLevelConfig() {
-    return LEVEL_CFG[gameState.level] || LEVEL_CFG[5];
+    return LEVEL_CFG[gameState.level] || LEVEL_CFG[MAX_LEVEL];
   }
 
   function catSizePx(cat) {
@@ -1245,11 +1255,14 @@
 
   function schedulePoopAttempts(cat) {
     if (gameState.level < 2) return;
-    const delay = 5000 + Math.random() * 3000;
+    const cfg = getLevelConfig();
+    const dmin = cfg.poopDelayMin != null ? cfg.poopDelayMin : 5000;
+    const dmax = cfg.poopDelayMax != null ? cfg.poopDelayMax : 8000;
+    const delay = dmax > dmin ? dmin + Math.random() * (dmax - dmin) : dmin;
     cat.poopTimeoutId = window.setTimeout(() => {
       if (!cat.el.isConnected) return;
-      const cfg = getLevelConfig();
-      if (Math.random() < cfg.poopChance) {
+      const c = getLevelConfig();
+      if (Math.random() < c.poopChance) {
         const cw = cat.el.offsetWidth || CAT_SIZE;
         const ch = cat.el.offsetHeight || CAT_SIZE;
         spawnPoop(cat.x + Math.round(cw * 0.14), cat.y + Math.round(ch * 0.56));
@@ -1395,7 +1408,7 @@
       levelOverlay.classList.add('overlay--hidden');
       gameState.levelCompleting = false;
 
-      if (finished >= 5) {
+      if (finished >= MAX_LEVEL) {
         gameState.gameWon = true;
         showScreen('win');
         return;
