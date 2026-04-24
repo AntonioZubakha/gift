@@ -124,12 +124,12 @@
     'Мышь снова на свободе. Ну, почти. В другом месте.',
   ];
   const OVERLAY_LINES = [
-    { l1: 'Уровень пройден!', l2: 'Коты в ауте. Зрители — тоже.', l3: 'Следующий акт через 2 секунды.' },
-    { l1: 'Браво! Шекспир бы заплакал.', l2: 'Или засмеялся. Он такой.', l3: 'Дальше — только хуже. В хорошем смысле.' },
-    { l1: 'Победа условная.', l2: 'Но аплодисменты — безусловные.', l3: 'Готовься к новой волне хаоса.' },
-    { l1: 'Куратор доволен.', l2: '(Куратора не существует.)', l3: 'Следующий уровень уже в кулисах.' },
-    { l1: 'Совет котов принял резолюцию.', l2: 'Кормить тебя обратно.', l3: 'Но сначала — следующий уровень.' },
-    { l1: 'Вы только что спасли вселенную.', l2: 'Точнее, одну конкретную комнату.', l3: 'Вселенная — в следующем раунде.' },
+    { l1: 'Уровень пройден!', l2: 'Коты в ауте. Зрители — тоже.', l3: 'Передышка. Дальше — по твоей команде.' },
+    { l1: 'Браво! Шекспир бы заплакал.', l2: 'Или засмеялся. Он такой.', l3: 'Дальше — только хуже. В хорошем смысле. Когда нажмёшь.' },
+    { l1: 'Победа условная.', l2: 'Но аплодисменты — безусловные.', l3: 'Готовься к новой волне хаоса — и жми кнопку.' },
+    { l1: 'Куратор доволен.', l2: '(Куратора не существует.)', l3: 'Следующий уровень в кулисах ждёт клика.' },
+    { l1: 'Совет котов принял резолюцию.', l2: 'Кормить тебя обратно.', l3: 'Но сначала — ты решаешь, когда идти дальше.' },
+    { l1: 'Вы только что спасли вселенную.', l2: 'Точнее, одну конкретную комнату.', l3: 'Вселенная — в следующем раунде. По кнопке.' },
   ];
   const WIN_SUBS = [
     'Титры длиннее самой игры.',
@@ -593,7 +593,10 @@
   const btnChaos = document.getElementById('btn-chaos');
   const toast = document.getElementById('toast');
   const levelOverlay = document.getElementById('level-overlay');
+  const btnLevelContinue = document.getElementById('btn-level-continue');
   const barkAudio = document.getElementById('bark-audio');
+
+  let pendingFinishedLevel = 0;
 
   let foodDragging = false;
   let foodOffsetX = 0;
@@ -1401,22 +1404,31 @@
     if (o3) o3.textContent = lines.l3;
 
     levelOverlay.classList.remove('overlay--hidden');
+    pendingFinishedLevel = gameState.level;
+    if (btnLevelContinue) {
+      btnLevelContinue.textContent =
+        gameState.level >= MAX_LEVEL ? 'К победе · VICTORY' : 'Дальше · NEXT ROUND';
+      btnLevelContinue.focus();
+    }
+  }
 
-    const finished = gameState.level;
+  function advanceAfterLevelOverlay() {
+    if (!levelOverlay || levelOverlay.classList.contains('overlay--hidden')) return;
+    if (!gameState.levelCompleting) return;
 
-    window.setTimeout(() => {
-      levelOverlay.classList.add('overlay--hidden');
-      gameState.levelCompleting = false;
+    const finished = pendingFinishedLevel;
+    pendingFinishedLevel = 0;
+    levelOverlay.classList.add('overlay--hidden');
+    gameState.levelCompleting = false;
 
-      if (finished >= MAX_LEVEL) {
-        gameState.gameWon = true;
-        showScreen('win');
-        return;
-      }
+    if (finished >= MAX_LEVEL) {
+      gameState.gameWon = true;
+      showScreen('win');
+      return;
+    }
 
-      gameState.level += 1;
-      startLevel();
-    }, 2000);
+    gameState.level += 1;
+    startLevel();
   }
 
   function startLevel() {
@@ -1907,6 +1919,13 @@
 
   setupTrashDrag();
   setupFoodDrag();
+
+  if (btnLevelContinue) {
+    btnLevelContinue.addEventListener('click', () => {
+      sfx('boing');
+      advanceAfterLevelOverlay();
+    });
+  }
 
   window.addEventListener('resize', () => {
     if (!foodDragging && !foodAnimating) {
