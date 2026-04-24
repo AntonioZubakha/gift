@@ -1137,6 +1137,16 @@ body.body--cats-video-on {
   align-items: stretch;
 }
 
+.riddle-stage__column-badge {
+  margin: 0 0 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  opacity: 0.6;
+  text-align: center;
+}
+
 .riddle-stage {
   position: relative;
   background: rgba(0, 0, 0, 0.35);

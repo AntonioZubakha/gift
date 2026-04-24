@@ -163,6 +163,7 @@
 
     <div class="riddle-stages">
       <article id="riddle-stage-1" class="riddle-stage riddle-stage--revealed">
+        <p class="riddle-stage__column-badge" aria-hidden="true">1</p>
         <div class="riddle-stage__body">
           <h2 class="riddle-stage__title">Загадка</h2>
           <div class="riddle-stage__verses">
@@ -174,9 +175,10 @@
       </article>
 
       <article id="riddle-stage-2" class="riddle-stage riddle-stage--locked">
-        <div class="riddle-stage__unlock-overlay" aria-hidden="false">
+        <p class="riddle-stage__column-badge" aria-hidden="true">2</p>
+        <div class="riddle-stage__unlock-overlay" id="riddle-2-unlock" aria-hidden="false">
           <div class="riddle-stage__unlock-box">
-            <span class="riddle-stage__unlock-label">Ключ — ровно 4 цифры</span>
+            <span class="riddle-stage__unlock-label">4 цифры, чтобы снять блюр</span>
             <input
               id="riddle-key-2"
               type="text"
@@ -186,15 +188,16 @@
               pattern="[0-9]*"
               autocomplete="off"
               spellcheck="false"
-              placeholder="0 0 0 0"
-              aria-label="Ключ из четырёх цифр для второй загадки"
+              placeholder="▢▢▢▢"
+              data-width-hint="4"
+              aria-label="Четыре цифры — ключ ко второй загадке"
             />
           </div>
         </div>
         <div class="riddle-stage__body">
           <h2 class="riddle-stage__title">Загадка</h2>
           <div class="riddle-stage__verses">
-            <p>Я в каждом глубоком вдохе,<br />Когда ты идешь в глубину.<br />На грани, на самом выдохе,<br />Я чувствую тишину.</p>
+            <p>Я в каждом глубоком вдохе,<br />Когда ты идёшь в глубину.<br />На грани, на самом выдохе,<br />Я чувствую тишину.</p>
             <p>Я кровью драконьей пролился<br />На камни Сокотры сухой.<br />Мой брат — эталон двенадцатый,<br />А я — лишь процент небольшой.</p>
             <p>Я метка твоя природная,<br />Автограф в твоей крови.<br />По мне узнают подлинность<br />И правду — как ни зови.</p>
           </div>
@@ -202,9 +205,10 @@
       </article>
 
       <article id="riddle-stage-3" class="riddle-stage riddle-stage--locked">
-        <div class="riddle-stage__unlock-overlay" aria-hidden="false">
+        <p class="riddle-stage__column-badge" aria-hidden="true">3</p>
+        <div class="riddle-stage__unlock-overlay" id="riddle-3-unlock" aria-hidden="false">
           <div class="riddle-stage__unlock-box">
-            <span class="riddle-stage__unlock-label">Ключ — ровно 4 цифры</span>
+            <span class="riddle-stage__unlock-label">4 цифры, чтобы снять блюр</span>
             <input
               id="riddle-key-3"
               type="text"
@@ -214,8 +218,9 @@
               pattern="[0-9]*"
               autocomplete="off"
               spellcheck="false"
-              placeholder="0 0 0 0"
-              aria-label="Ключ из четырёх цифр для третьей загадки"
+              placeholder="▢▢▢▢"
+              data-width-hint="4"
+              aria-label="Четыре цифры — ключ к третьей загадке"
             />
           </div>
         </div>
@@ -223,7 +228,7 @@
           <h2 class="riddle-stage__title">Загадка</h2>
           <div class="riddle-stage__verses">
             <p>Возьми элемент, что в основе<br />Дыханья и твердых скал.<br />Его в драгоценном камне<br />Ты долго и жадно искал.</p>
-            <p>Прибавь к нему то, что следует<br />За дюжиной строгой в ряд.<br />О нем суеверный ведает,<br />Отводя испуганный взгляд.</p>
+            <p>Прибавь к нему то, что следует<br />За дюжиной строгой в ряд.<br />О нём суеверный ведает,<br />Отводя испуганный взгляд.</p>
             <p>Возьми у любимого букву одну,<br />Что в имени рода взошла,<br />И нашу с тобой высоту и весну,<br />Где вместе нас крыша свела.</p>
           </div>
         </div>

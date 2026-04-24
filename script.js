@@ -1908,7 +1908,10 @@
   const stage3 = document.getElementById('riddle-stage-3');
   const riddleKey2 = document.getElementById('riddle-key-2');
   const riddleKey3 = document.getElementById('riddle-key-3');
+  const btnOpenVault = document.getElementById('btn-open-vault');
   const btnClaimGift = document.getElementById('btn-claim-gift');
+
+  let vaultCodeAccepted = false;
 
   function setRiddleRevealed(stageEl, revealed) {
     if (!stageEl) return;
@@ -1916,25 +1919,32 @@
     stageEl.classList.toggle('riddle-stage--revealed', revealed);
     const overlay = stageEl.querySelector('.riddle-stage__unlock-overlay');
     if (overlay) overlay.setAttribute('aria-hidden', revealed ? 'true' : 'false');
+    if (stageEl === stage2 && riddleKey2) {
+      riddleKey2.disabled = revealed;
+    } else if (stageEl === stage3 && riddleKey3) {
+      riddleKey3.disabled = revealed;
+    }
   }
 
   function resetPasswordVaultUI() {
+    vaultCodeAccepted = false;
     if (pwd1) pwd1.value = '';
     if (pwd2) pwd2.value = '';
     if (pwd3) pwd3.value = '';
-    if (riddleKey2) riddleKey2.value = '';
-    if (riddleKey3) riddleKey3.value = '';
+    if (riddleKey2) {
+      riddleKey2.value = '';
+      riddleKey2.disabled = false;
+    }
+    if (riddleKey3) {
+      riddleKey3.value = '';
+      riddleKey3.disabled = false;
+    }
     setRiddleRevealed(stage2, false);
     setRiddleRevealed(stage3, false);
     const msgEl = document.getElementById('password-msg');
     if (msgEl) msgEl.textContent = '';
+    if (btnOpenVault) btnOpenVault.hidden = false;
     if (btnClaimGift) btnClaimGift.hidden = true;
-  }
-
-  function syncVaultClaimButton() {
-    if (!btnClaimGift || !pwd1 || !pwd2 || !pwd3) return;
-    const val = buildVaultCode();
-    btnClaimGift.hidden = val.length !== 3 || val !== MAIN_PASSWORD;
   }
 
   function shakeEl(el) {
@@ -1948,26 +1958,29 @@
     if (riddleKey2) {
       const v2 = normDigitsOnly(riddleKey2.value, 4);
       if (riddleKey2.value !== v2) riddleKey2.value = v2;
-      if (v2 === RIDDLE_UNLOCK_2) setRiddleRevealed(stage2, true);
-      else setRiddleRevealed(stage2, false);
-      if (v2.length === 4 && v2 !== RIDDLE_UNLOCK_2) shakeEl(riddleKey2);
+      if (v2 === RIDDLE_UNLOCK_2) {
+        setRiddleRevealed(stage2, true);
+        sfx('level');
+      } else {
+        setRiddleRevealed(stage2, false);
+        if (v2.length === 4 && v2 !== RIDDLE_UNLOCK_2) shakeEl(riddleKey2);
+      }
     }
     if (riddleKey3) {
       const v3 = normDigitsOnly(riddleKey3.value, 4);
       if (riddleKey3.value !== v3) riddleKey3.value = v3;
-      if (v3 === RIDDLE_UNLOCK_3) setRiddleRevealed(stage3, true);
-      else setRiddleRevealed(stage3, false);
-      if (v3.length === 4 && v3 !== RIDDLE_UNLOCK_3) shakeEl(riddleKey3);
+      if (v3 === RIDDLE_UNLOCK_3) {
+        setRiddleRevealed(stage3, true);
+        sfx('level');
+      } else {
+        setRiddleRevealed(stage3, false);
+        if (v3.length === 4 && v3 !== RIDDLE_UNLOCK_3) shakeEl(riddleKey3);
+      }
     }
   }
 
-  function deliverGiftAndCelebration() {
+  function deliverGiftFile() {
     const msg = document.getElementById('password-msg');
-    if (msg) msg.textContent = '';
-    gameState.passwordAttempts = 0;
-    sfx('win');
-    setAbsurdTicker('Доступ. Или иллюзия доступа. В любом случае — молодец.');
-    emojiRain(2500, 30);
     if (GIFT_EXTERNAL_URL && GIFT_EXTERNAL_URL.length > 0) {
       window.open(GIFT_EXTERNAL_URL, '_blank', 'noopener,noreferrer');
     }
@@ -1979,14 +1992,15 @@
       a.click();
       a.remove();
     }
-    if ((!GIFT_EXTERNAL_URL || GIFT_EXTERNAL_URL.length === 0) && (!GIFT_DOWNLOAD_PATH || GIFT_DOWNLOAD_PATH.length === 0)) {
-      if (msg) {
+    if (msg) {
+      if ((GIFT_EXTERNAL_URL && GIFT_EXTERNAL_URL.length) || (GIFT_DOWNLOAD_PATH && GIFT_DOWNLOAD_PATH.length)) {
+        msg.textContent = 'Подарок в пути — загляни в «Загрузки», если вдруг не всплыло окно.';
+      } else {
         msg.textContent = 'Подарок почти здесь — задайте GIFT_EXTERNAL_URL или GIFT_DOWNLOAD_PATH в script.js.';
       }
     }
-    window.requestAnimationFrame(() => {
-      showCatsVideoFullscreen();
-    });
+    setAbsurdTicker('Подарок отдан. Коты одобрительно молчат.');
+    maybe(0.4, () => burstEmojis(['🎁', '✨', '🐱'], 6, document.getElementById('global-rain')));
   }
 
   function buildVaultCode() {
@@ -1996,17 +2010,12 @@
 
   function shakeVaultInputs() {
     [pwd1, pwd2, pwd3].forEach((el) => {
-      if (!el || el.disabled) return;
+      if (!el) return;
       el.classList.remove('shake');
       void el.offsetWidth;
       el.classList.add('shake');
     });
   }
-
-  [pwd1, pwd2, pwd3].forEach((el) => {
-    if (!el) return;
-    el.addEventListener('input', () => syncVaultClaimButton());
-  });
 
   [riddleKey2, riddleKey3].forEach((el) => {
     if (!el) return;
@@ -2021,20 +2030,21 @@
 
   if (btnClaimGift) {
     btnClaimGift.addEventListener('click', () => {
-      const val = buildVaultCode();
-      if (val.length < 3 || val !== MAIN_PASSWORD) {
+      if (!vaultCodeAccepted) {
         const msg = document.getElementById('password-msg');
-        if (msg) msg.textContent = 'Сначала верный код в трёх ячейках сейфа.';
+        if (msg) msg.textContent = 'Сначала нажми «Открыть сейф» с правильным кодом.';
         sfx('wrong');
         shakeVaultInputs();
         return;
       }
-      deliverGiftAndCelebration();
+      deliverGiftFile();
+      sfx('win');
     });
   }
 
   document.getElementById('password-form').addEventListener('submit', (e) => {
     e.preventDefault();
+    if (vaultCodeAccepted) return;
     const msg = document.getElementById('password-msg');
     const val = buildVaultCode();
 
@@ -2046,8 +2056,15 @@
     }
 
     if (val === MAIN_PASSWORD) {
-      if (msg) msg.textContent = 'Код верный. Жми «Забрать подарок» — и файл твой.';
-      syncVaultClaimButton();
+      vaultCodeAccepted = true;
+      gameState.passwordAttempts = 0;
+      sfx('win');
+      if (msg) msg.textContent = 'Код верный. Кнопка «Забрать подарок» разблокирована.';
+      if (btnOpenVault) btnOpenVault.hidden = true;
+      if (btnClaimGift) {
+        btnClaimGift.hidden = false;
+        window.requestAnimationFrame(() => btnClaimGift.focus());
+      }
       return;
     }
 
