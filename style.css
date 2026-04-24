@@ -826,6 +826,39 @@ body.body--shake {
   100% { opacity: 0; transform: scale(0.9); }
 }
 
+/* ======= POST-SAFE FULLSCREEN CAT VIDEO ======= */
+.cats-video-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10050;
+  width: 100vw;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  background: #000;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.cats-video-overlay--hidden {
+  display: none !important;
+}
+
+.cats-loop-video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 100vh;
+  object-fit: cover;
+  object-position: center center;
+}
+
+body.body--cats-video-on {
+  overflow: hidden;
+}
+
 /* ======= GLOBAL RAIN (emoji rain across whole page) ======= */
 .global-rain {
   pointer-events: none;

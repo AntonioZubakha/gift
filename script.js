@@ -346,6 +346,36 @@
     if (el) el.textContent = text;
   }
 
+  function showCatsVideoFullscreen() {
+    const ov = document.getElementById('cats-video-overlay');
+    const vid = document.getElementById('cats-loop-video');
+    if (!ov || !vid) return;
+    ov.classList.remove('cats-video-overlay--hidden');
+    ov.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('body--cats-video-on');
+    vid.muted = true;
+    vid.setAttribute('playsinline', '');
+    vid.loop = true;
+    try {
+      vid.currentTime = 0;
+    } catch (_) {
+      /* ignore */
+    }
+    const tryPlay = () => {
+      const p = vid.play();
+      if (p && typeof p.catch === 'function') {
+        p.catch(() => {
+          const resume = () => {
+            vid.play().catch(() => {});
+            ov.removeEventListener('pointerdown', resume);
+          };
+          ov.addEventListener('pointerdown', resume, { passive: true });
+        });
+      }
+    };
+    tryPlay();
+  }
+
   function burstEmojis(emojis, n, container) {
     const fx = container || document.getElementById('playfield-fx');
     if (!fx) return;
@@ -1996,6 +2026,9 @@
           msg.textContent = 'Подарок почти здесь — задайте GIFT_EXTERNAL_URL или GIFT_DOWNLOAD_PATH в script.js.';
         }
       }
+      window.requestAnimationFrame(() => {
+        showCatsVideoFullscreen();
+      });
       return;
     }
 
