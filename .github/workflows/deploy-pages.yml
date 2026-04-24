@@ -1,3 +1,6 @@
+# GitHub Pages: один артефакт за прогон. Не отменять параллельные деплои во время upload —
+# иначе deploy-pages видит несколько артефактов "github-pages" (см. concurrency ниже).
+
 name: Deploy to GitHub Pages
 
 on:
@@ -10,9 +13,13 @@ permissions:
   pages: write
   id-token: write
 
+# Как в официальном static Pages workflow: false, чтобы не рвать upload/deploy при новом push.
 concurrency:
   group: pages
-  cancel-in-progress: true
+  cancel-in-progress: false
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   deploy:
@@ -25,10 +32,10 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Configure Pages
-        uses: actions/configure-pages@v4
+        uses: actions/configure-pages@v5
 
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: "."
 
