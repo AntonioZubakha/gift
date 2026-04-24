@@ -99,12 +99,6 @@
 
   <section id="screen-password" class="screen">
     <h1 class="password-title">Сейф с наградой</h1>
-    <p class="password-lead">
-      <strong>Сверху</strong> — сейф на три символа (см. загадки). <strong>Ниже</strong> — три колонки: в первой всё
-      сразу видно; во второй и третьей загадка скрыта сильным блюром, пока не введёшь <strong>ровно 4 цифры</strong> в поле
-      по центру. Три &laquo;официальные&raquo; попытки на сейф — с шутками, на деле <strong>попыток бесконечно</strong>.
-      В коде сейфа буква — латинская, регистр не важен.
-    </p>
 
     <div class="safe" aria-label="Три символа сейфа">
       <div class="safe__inputs" role="group">
@@ -188,7 +182,7 @@
               pattern="[0-9]*"
               autocomplete="off"
               spellcheck="false"
-              placeholder="▢▢▢▢"
+              placeholder="0000"
               data-width-hint="4"
               aria-label="Четыре цифры — ключ ко второй загадке"
             />
@@ -218,7 +212,7 @@
               pattern="[0-9]*"
               autocomplete="off"
               spellcheck="false"
-              placeholder="▢▢▢▢"
+              placeholder="0000"
               data-width-hint="4"
               aria-label="Четыре цифры — ключ к третьей загадке"
             />
