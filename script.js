@@ -47,6 +47,13 @@
       .toLowerCase();
   }
 
+  function normPwdChar(s) {
+    return String(s || '')
+      .trim()
+      .toLowerCase()
+      .charAt(0);
+  }
+
   const pick = (arr) => arr[(Math.random() * arr.length) | 0];
   const maybe = (p, fn) => {
     if (Math.random() < p) fn();
@@ -134,7 +141,7 @@
   const WIN_SUBS = [
     'Титры длиннее самой игры.',
     'Теперь ты официально в списках театра.',
-    'Можно отдыхать. Коты — нет.',
+    'Немного можешь отдохнуть, кожаный мешок.',
     'Сертификат «пережил котохаос» выдаётся мысленно.',
     'Нобелевка за терпение — в пути. Возможно.',
     'Режиссёр снял шляпу. У него её не было.',
@@ -1857,19 +1864,118 @@
     gameState.rafId = requestAnimationFrame(loop);
   }
 
+  const pwd1 = document.getElementById('pwd-1');
+  const pwd2 = document.getElementById('pwd-2');
+  const pwd3 = document.getElementById('pwd-3');
+  const stage2 = document.getElementById('riddle-stage-2');
+  const stage3 = document.getElementById('riddle-stage-3');
+
+  let vaultPrevUnlock2 = false;
+  let vaultPrevUnlock3 = false;
+
+  function setRiddleRevealed(stageEl, revealed) {
+    if (!stageEl) return;
+    stageEl.classList.toggle('riddle-stage--locked', !revealed);
+    stageEl.classList.toggle('riddle-stage--revealed', revealed);
+  }
+
+  function resetPasswordVaultUI() {
+    if (pwd1) pwd1.value = '';
+    if (pwd2) pwd2.value = '';
+    if (pwd3) pwd3.value = '';
+    if (pwd2) pwd2.disabled = true;
+    if (pwd3) pwd3.disabled = true;
+    setRiddleRevealed(stage2, false);
+    setRiddleRevealed(stage3, false);
+    const msgEl = document.getElementById('password-msg');
+    if (msgEl) msgEl.textContent = '';
+    vaultPrevUnlock2 = false;
+    vaultPrevUnlock3 = false;
+  }
+
+  function syncPasswordStages() {
+    if (!pwd1 || !pwd2 || !pwd3 || !stage2 || !stage3) return;
+    const c1 = normPwdChar(pwd1.value);
+    const c2 = normPwdChar(pwd2.value);
+    const c3 = normPwdChar(pwd3.value);
+    const ok1 = c1 === 'c';
+    const ok2 = ok1 && c2 === '1';
+    const ok3 = ok2 && c3 === '3';
+
+    if (!ok1) {
+      pwd2.value = '';
+      pwd3.value = '';
+      pwd2.disabled = true;
+      pwd3.disabled = true;
+      setRiddleRevealed(stage2, false);
+      setRiddleRevealed(stage3, false);
+      vaultPrevUnlock2 = false;
+      vaultPrevUnlock3 = false;
+      return;
+    }
+
+    pwd2.disabled = false;
+    setRiddleRevealed(stage2, true);
+    if (!vaultPrevUnlock2) {
+      vaultPrevUnlock2 = true;
+      window.requestAnimationFrame(() => pwd2.focus());
+    }
+
+    if (!ok2) {
+      pwd3.value = '';
+      pwd3.disabled = true;
+      setRiddleRevealed(stage3, false);
+      vaultPrevUnlock3 = false;
+      return;
+    }
+
+    pwd3.disabled = false;
+    setRiddleRevealed(stage3, true);
+    if (!vaultPrevUnlock3) {
+      vaultPrevUnlock3 = true;
+      window.requestAnimationFrame(() => pwd3.focus());
+    }
+  }
+
+  function buildVaultCode() {
+    if (!pwd1 || !pwd2 || !pwd3) return '';
+    return normPwdChar(pwd1.value) + normPwdChar(pwd2.value) + normPwdChar(pwd3.value);
+  }
+
+  function shakeVaultInputs() {
+    [pwd1, pwd2, pwd3].forEach((el) => {
+      if (!el || el.disabled) return;
+      el.classList.remove('shake');
+      void el.offsetWidth;
+      el.classList.add('shake');
+    });
+  }
+
+  [pwd1, pwd2, pwd3].forEach((el) => {
+    if (!el) return;
+    el.addEventListener('input', () => syncPasswordStages());
+  });
+
   document.getElementById('btn-unlock').addEventListener('click', () => {
+    resetPasswordVaultUI();
     showScreen('password');
-    document.getElementById('password-input').focus();
+    if (pwd1) pwd1.focus();
   });
 
   document.getElementById('password-form').addEventListener('submit', (e) => {
     e.preventDefault();
-    const input = document.getElementById('password-input');
     const msg = document.getElementById('password-msg');
-    const val = normPwd(input.value);
+    const val = buildVaultCode();
+
+    if (val.length < 3) {
+      if (msg) msg.textContent = 'Нужны все три символа в ячейках сейфа.';
+      sfx('wrong');
+      shakeVaultInputs();
+      return;
+    }
 
     if (val === MAIN_PASSWORD) {
-      msg.textContent = '';
+      if (msg) msg.textContent = '';
       gameState.passwordAttempts = 0;
       sfx('win');
       setAbsurdTicker('Доступ. Или иллюзия доступа. В любом случае — молодец.');
@@ -1886,35 +1992,29 @@
         a.remove();
       }
       if ((!GIFT_EXTERNAL_URL || GIFT_EXTERNAL_URL.length === 0) && (!GIFT_DOWNLOAD_PATH || GIFT_DOWNLOAD_PATH.length === 0)) {
-        msg.textContent = 'Подарок почти здесь — задайте GIFT_EXTERNAL_URL или GIFT_DOWNLOAD_PATH в script.js.';
+        if (msg) {
+          msg.textContent = 'Подарок почти здесь — задайте GIFT_EXTERNAL_URL или GIFT_DOWNLOAD_PATH в script.js.';
+        }
       }
       return;
     }
 
-    // Secret easter eggs on wrong password
-    if (val === 'кот' || val === 'cat') {
-      msg.textContent = 'Коты одобряют, но это не пароль. 🐱';
-      sfx('combo');
-      burstEmojis(['🐱','😼','😻'], 6, document.getElementById('global-rain'));
-      return;
-    }
     if (val === '666' || val === 'лол' || val === 'lol') {
-      msg.textContent = 'Смешно. Но нет.';
+      if (msg) msg.textContent = 'Смешно. Но нет.';
       sfx('wrong');
+      shakeVaultInputs();
       return;
     }
 
     gameState.passwordAttempts += 1;
     sfx('wrong');
-    input.classList.remove('shake');
-    void input.offsetWidth;
-    input.classList.add('shake');
+    shakeVaultInputs();
     const i = gameState.passwordAttempts;
     let line = i <= 3 ? WRONG_PASSWORD_MSG[i - 1] : WRONG_PASSWORD_MSG_AFTER;
     if (Math.random() < 0.5) {
       line = `${line}\n${pick(PASSWORD_EXTRA_WRONG)}`;
     }
-    msg.textContent = line;
+    if (msg) msg.textContent = line;
   });
 
   setupTrashDrag();

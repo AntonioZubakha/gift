@@ -984,8 +984,64 @@ body.body--shake {
   flex-wrap: wrap;
   gap: 0.75rem;
   justify-content: center;
-  margin: 1.5rem 0;
+  margin: 0.5rem 0 1rem;
   align-items: center;
+}
+
+/* ======= SAFE (3 digits) ======= */
+.safe {
+  width: 100%;
+  max-width: 28rem;
+  margin: 0 auto 0.5rem;
+}
+
+.safe__inputs {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  align-items: flex-end;
+}
+
+.safe__cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  cursor: pointer;
+}
+
+.safe__label {
+  font-weight: 900;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  opacity: 0.9;
+}
+
+.safe__digit {
+  font: inherit;
+  width: 3.25rem;
+  height: 3.6rem;
+  font-size: 1.65rem;
+  font-weight: 900;
+  text-align: center;
+  border: 4px solid var(--shadow);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.96);
+  color: #1a0a2e;
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.35);
+  transition: opacity 0.2s ease, transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.safe__digit:focus {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.safe__digit:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.25);
 }
 
 .password-input {
@@ -1006,6 +1062,7 @@ body.body--shake {
   letter-spacing: 0.12em;
 }
 
+.safe__digit.shake,
 .password-input.shake {
   animation: inputShake 0.4s ease;
 }
@@ -1035,10 +1092,39 @@ body.body--shake {
   border: 2px solid rgba(255, 255, 255, 0.3);
   border-radius: 12px;
   padding: 1rem 1.1rem;
-  transition: transform 0.3s ease;
+  transition: border-color 0.35s ease, box-shadow 0.35s ease;
 }
-.riddle-stage:hover {
+
+.riddle-stage--revealed:hover {
   transform: translateX(4px) rotate(-0.4deg);
+}
+
+.riddle-stage__body {
+  transition: filter 0.55s ease, opacity 0.55s ease;
+}
+
+.riddle-stage--locked .riddle-stage__body {
+  filter: blur(11px) saturate(0.65);
+  opacity: 0.38;
+  user-select: none;
+  pointer-events: none;
+}
+
+.riddle-stage--revealed .riddle-stage__body {
+  filter: none;
+  opacity: 1;
+  user-select: text;
+  pointer-events: auto;
+}
+
+.riddle-stage--locked {
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.riddle-stage--revealed {
+  border-color: rgba(255, 255, 255, 0.35);
+  box-shadow: 0 0 0 1px rgba(255, 190, 11, 0.2);
+  transition: transform 0.3s ease, border-color 0.35s ease, box-shadow 0.35s ease;
 }
 
 .riddle-stage__title {

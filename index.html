@@ -85,56 +85,103 @@
   </section>
 
   <section id="screen-password" class="screen">
-    <h1 class="password-title">Пароль</h1>
+    <h1 class="password-title">Сейф с наградой</h1>
     <p class="password-lead">
-      Три символа подряд. Ниже три загадки: первая намекает на <strong>первый</strong> символ,
-      вторая — на <strong>второй</strong>, третья — на <strong>третий</strong>.
-      Регистр буквы при вводе не важен. Коты не помогут. Они сами в шоке.
+      Три ячейки — три символа. Сначала видна только <strong>первая</strong> загадка: введи верный первый символ в левое поле —
+      вторая загадка прояснится. Потом второй символ — откроется третья. Регистр буквы не важен.
     </p>
+
+    <div class="safe" aria-label="Три символа сейфа">
+      <div class="safe__inputs" role="group">
+        <label class="safe__cell">
+          <span class="safe__label">1</span>
+          <input
+            id="pwd-1"
+            type="text"
+            class="safe__digit"
+            maxlength="1"
+            inputmode="text"
+            autocapitalize="off"
+            autocomplete="off"
+            spellcheck="false"
+            aria-label="Первый символ пароля"
+          />
+        </label>
+        <label class="safe__cell">
+          <span class="safe__label">2</span>
+          <input
+            id="pwd-2"
+            type="text"
+            class="safe__digit"
+            maxlength="1"
+            inputmode="numeric"
+            autocapitalize="off"
+            autocomplete="off"
+            spellcheck="false"
+            disabled
+            aria-label="Второй символ пароля"
+          />
+        </label>
+        <label class="safe__cell">
+          <span class="safe__label">3</span>
+          <input
+            id="pwd-3"
+            type="text"
+            class="safe__digit"
+            maxlength="1"
+            inputmode="numeric"
+            autocapitalize="off"
+            autocomplete="off"
+            spellcheck="false"
+            disabled
+            aria-label="Третий символ пароля"
+          />
+        </label>
+      </div>
+    </div>
+
     <form id="password-form" class="password-form" autocomplete="off">
-      <label class="sr-only" for="password-input">Пароль из трёх символов</label>
-      <input
-        id="password-input"
-        type="text"
-        class="password-input password-input--main"
-        placeholder="•••"
-        maxlength="3"
-        autocapitalize="off"
-        autocomplete="off"
-        spellcheck="false"
-      />
-      <button type="submit" class="btn">Проверить</button>
+      <button type="submit" class="btn">Открыть сейф</button>
     </form>
     <p id="password-msg" class="password-msg" role="status"></p>
 
     <div class="riddle-stages">
-      <article class="riddle-stage">
-        <h2 class="riddle-stage__title">🎭 Загадка №1</h2>
-        <p class="riddle-stage__meta">Подсказка на <strong>первый</strong> символ пароля</p>
-        <div class="riddle-stage__verses">
-          <p>Я часть триады, где первая — «A», последняя — «E».</p>
-          <p>Меня часто используют как обозначение скорости света, но в алфавите я всего лишь сосед двух букв.</p>
-          <p class="riddle-stage__question">Что я?</p>
+      <article id="riddle-stage-1" class="riddle-stage riddle-stage--revealed">
+        <div class="riddle-stage__body">
+          <h2 class="riddle-stage__title">🎭 Загадка №1</h2>
+          <p class="riddle-stage__meta">Подсказка на <strong>первый</strong> символ пароля</p>
+          <div class="riddle-stage__verses">
+            <p>
+              Я похожа на полубублик, который откусили с улыбкой. В алфавите я третья, мои соседи — B и D, а учёные зовут
+              меня, когда свет мчится наперегонки. Я не замкнута в круг, но всегда в отличном настроении! Какая я буква?
+            </p>
+          </div>
         </div>
       </article>
 
-      <article class="riddle-stage">
-        <h2 class="riddle-stage__title">🎭 Загадка №2</h2>
-        <p class="riddle-stage__meta">Подсказка на <strong>второй</strong> символ пароля</p>
-        <div class="riddle-stage__verses">
-          <p>Я единственный, кто не делится ни на кого, но без меня не начнётся ни счёт, ни игра.</p>
-          <p>Я стою в начале, но не имею пары.</p>
-          <p class="riddle-stage__question">Что я?</p>
+      <article id="riddle-stage-2" class="riddle-stage riddle-stage--locked">
+        <div class="riddle-stage__body">
+          <h2 class="riddle-stage__title">🎭 Загадка №2</h2>
+          <p class="riddle-stage__meta">Подсказка на <strong>второй</strong> символ пароля</p>
+          <div class="riddle-stage__verses">
+            <p>
+              Я обожаю одиночество, но без меня не начнётся ни один танец, ни игра, ни даже счёт овец перед сном. Я стою
+              впереди всех, как указательный палец, и гордо заявляю: «Я первый!» Кто я?
+            </p>
+          </div>
         </div>
       </article>
 
-      <article class="riddle-stage">
-        <h2 class="riddle-stage__title">🎭 Загадка №3</h2>
-        <p class="riddle-stage__meta">Подсказка на <strong>третий</strong> символ пароля</p>
-        <div class="riddle-stage__verses">
-          <p>Я число, которое любят в сказках, меня ищут в трёх желаниях и трёх испытаниях.</p>
-          <p>Я не первый и не второй, но всегда магический.</p>
-          <p class="riddle-stage__question">Что я?</p>
+      <article id="riddle-stage-3" class="riddle-stage riddle-stage--locked">
+        <div class="riddle-stage__body">
+          <h2 class="riddle-stage__title">🎭 Загадка №3</h2>
+          <p class="riddle-stage__meta">Подсказка на <strong>третий</strong> символ пароля</p>
+          <div class="riddle-stage__verses">
+            <p>
+              Я не квадрат, но у меня всё устойчиво: три ножки у табуретки, три цвета светофора, три поросёнка и три
+              желания у золотой рыбки! Сказки меня обожают, а без меня даже стул шатается. Какая я цифра?
+            </p>
+          </div>
         </div>
       </article>
     </div>
