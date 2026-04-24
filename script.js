@@ -104,6 +104,14 @@
     '🪩 кнопка ничем не помогает. Но весело.',
     'Жизнь — это уровень 1 с респавном багов.',
     'Сегодня спонсор выпуска — хаос.',
+    'Лазер, клубок и коробка — тяни. Мышь сама. Коты — в шоке.',
+  ];
+  const QUIPS_MOUSE_CATCH = [
+    'Мышь поймана. Ресторан «Не то, но с энтузиазмом» закрыт.',
+    '+1 к иллюзии охоты. Мышь телепортировалась в другую вселенную.',
+    'Кто-то съел не то. Но с аппетитом.',
+    'Мышь: «это был спидран». Кот: «это был обед».',
+    'Мышь снова на свободе. Ну, почти. В другом месте.',
   ];
   const OVERLAY_LINES = [
     { l1: 'Уровень пройден!', l2: 'Коты в ауте. Зрители — тоже.', l3: 'Следующий акт через 2 секунды.' },
@@ -292,6 +300,10 @@
         blip(659, 0.12, 'triangle', 0.1, 0.08);
         blip(784, 0.12, 'triangle', 0.1, 0.16);
         blip(1046, 0.2, 'triangle', 0.12, 0.24);
+        break;
+      case 'mouse':
+        blip(520, 0.04, 'sine', 0.1, 0);
+        blip(880, 0.05, 'triangle', 0.08, 0.03);
         break;
       default:
         break;
@@ -548,6 +560,7 @@
     poops: [],
     dogsLeft: 3,
     catsFed: 0,
+    mouseCaught: 0,
     dogCooldown: false,
     gameWon: false,
     levelCompleting: false,
@@ -557,6 +570,10 @@
   };
 
   const playfield = document.getElementById('playfield');
+  const laserEl = document.getElementById('laser');
+  const propBox = document.getElementById('prop-box');
+  const propYarn = document.getElementById('prop-yarn');
+  const propMouse = document.getElementById('prop-mouse');
   const food = document.getElementById('food');
   const trash = document.getElementById('trash');
   const dogOverlay = document.getElementById('dog-overlay');
@@ -804,6 +821,291 @@
     applyTrashPosition();
   }
 
+  const LASER_RANGE = 270;
+  const LASER_STRENGTH = 300;
+  const YARN_RANGE = 210;
+  const YARN_STRENGTH = 190;
+  const BOX_RADIUS = 102;
+  const BOX_SLOW_PULL = 78;
+  const MOUSE_CHASE_RANGE = 300;
+  const MOUSE_CHASE_STRENGTH = 230;
+  const MOUSE_CATCH_DIST = 46;
+
+  function makeDraggableProp(el) {
+    const s = {
+      x: 0,
+      y: 0,
+      dragging: false,
+      ox: 0,
+      oy: 0,
+      cap: null,
+      raf: null,
+      lcx: 0,
+      lcy: 0,
+    };
+    function apply() {
+      el.style.left = '0';
+      el.style.top = '0';
+      el.style.right = 'auto';
+      el.style.bottom = 'auto';
+      el.style.transform = `translate3d(${s.x}px, ${s.y}px, 0)`;
+    }
+    function releasePointerCap() {
+      if (s.cap == null) return;
+      try {
+        if (el.hasPointerCapture(s.cap)) el.releasePointerCapture(s.cap);
+      } catch (_) {
+        /* ignore */
+      }
+      s.cap = null;
+    }
+    function forceEndDrag() {
+      if (!s.dragging && s.raf == null) return;
+      s.dragging = false;
+      el.classList.remove('prop--dragging');
+      el.style.zIndex = '';
+      if (s.raf != null) {
+        cancelAnimationFrame(s.raf);
+        s.raf = null;
+      }
+      releasePointerCap();
+    }
+    el.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      el.setPointerCapture(e.pointerId);
+      s.cap = e.pointerId;
+      s.dragging = true;
+      el.classList.add('prop--dragging');
+      el.style.zIndex = '40';
+      const pf = playfield.getBoundingClientRect();
+      s.ox = e.clientX - pf.left - s.x;
+      s.oy = e.clientY - pf.top - s.y;
+    });
+    el.addEventListener('pointermove', (e) => {
+      s.lcx = e.clientX;
+      s.lcy = e.clientY;
+      if (!s.dragging) return;
+      if (s.raf != null) return;
+      s.raf = requestAnimationFrame(() => {
+        s.raf = null;
+        if (!s.dragging) return;
+        const pf = playfield.getBoundingClientRect();
+        let nx = s.lcx - pf.left - s.ox;
+        let ny = s.lcy - pf.top - s.oy;
+        const maxX = Math.max(0, playfield.clientWidth - el.offsetWidth);
+        const maxY = Math.max(0, playfield.clientHeight - el.offsetHeight);
+        s.x = Math.min(Math.max(0, nx), maxX);
+        s.y = Math.min(Math.max(0, ny), maxY);
+        apply();
+      });
+    });
+    function onEnd() {
+      if (!s.dragging) return;
+      s.dragging = false;
+      el.classList.remove('prop--dragging');
+      el.style.zIndex = '';
+      if (s.raf != null) {
+        cancelAnimationFrame(s.raf);
+        s.raf = null;
+      }
+      releasePointerCap();
+    }
+    el.addEventListener('pointerup', onEnd);
+    el.addEventListener('pointercancel', onEnd);
+    function center() {
+      return {
+        x: s.x + (el.offsetWidth || 48) / 2,
+        y: s.y + (el.offsetHeight || 48) / 2,
+      };
+    }
+    return { s, apply, center, forceEndDrag };
+  }
+
+  const dragLaser = laserEl ? makeDraggableProp(laserEl) : null;
+  const dragYarn = propYarn ? makeDraggableProp(propYarn) : null;
+  const dragBox = propBox ? makeDraggableProp(propBox) : null;
+
+  const mouseRun = {
+    x: 80,
+    y: 80,
+    vx: 100,
+    vy: 80,
+  };
+
+  function syncLaserCorner() {
+    if (!dragLaser || !laserEl) return;
+    const w = playfield.clientWidth;
+    const h = playfield.clientHeight;
+    const ew = laserEl.offsetWidth || 48;
+    const eh = laserEl.offsetHeight || 48;
+    dragLaser.s.x = Math.max(FOOD_MARGIN, w - ew - FOOD_MARGIN - 4);
+    dragLaser.s.y = Math.max(FOOD_MARGIN, Math.min(h * 0.2, h - eh - FOOD_MARGIN));
+    dragLaser.apply();
+  }
+
+  function syncYarnCorner() {
+    if (!dragYarn || !propYarn) return;
+    const w = playfield.clientWidth;
+    const h = playfield.clientHeight;
+    const ew = propYarn.offsetWidth || 52;
+    const eh = propYarn.offsetHeight || 52;
+    dragYarn.s.x = FOOD_MARGIN + 2;
+    dragYarn.s.y = Math.max(FOOD_MARGIN, (h - eh) / 2);
+    dragYarn.apply();
+  }
+
+  function syncBoxCorner() {
+    if (!dragBox || !propBox) return;
+    const w = playfield.clientWidth;
+    const h = playfield.clientHeight;
+    const ew = propBox.offsetWidth || 88;
+    const eh = propBox.offsetHeight || 72;
+    dragBox.s.x = Math.max(FOOD_MARGIN, (w - ew) / 2);
+    dragBox.s.y = FOOD_MARGIN + 2;
+    dragBox.apply();
+  }
+
+  function resetFieldProps() {
+    if (dragLaser) {
+      dragLaser.forceEndDrag();
+      syncLaserCorner();
+    }
+    if (dragYarn) {
+      dragYarn.forceEndDrag();
+      syncYarnCorner();
+    }
+    if (dragBox) {
+      dragBox.forceEndDrag();
+      syncBoxCorner();
+    }
+    resetMouseRun();
+  }
+
+  function resetMouseRun() {
+    if (!propMouse) return;
+    const w = playfield.clientWidth;
+    const h = playfield.clientHeight;
+    const mw = propMouse.offsetWidth || 40;
+    const mh = propMouse.offsetHeight || 40;
+    mouseRun.x = FOOD_MARGIN + Math.random() * Math.max(8, w - mw - FOOD_MARGIN * 2);
+    mouseRun.y = FOOD_MARGIN + Math.random() * Math.max(8, h - mh - FOOD_MARGIN * 2);
+    const sp = 72 + Math.random() * 88;
+    const ang = Math.random() * Math.PI * 2;
+    mouseRun.vx = Math.cos(ang) * sp;
+    mouseRun.vy = Math.sin(ang) * sp;
+    applyMousePosition();
+  }
+
+  function applyMousePosition() {
+    if (!propMouse) return;
+    propMouse.style.left = '0';
+    propMouse.style.top = '0';
+    propMouse.style.transform = `translate3d(${mouseRun.x}px, ${mouseRun.y}px, 0)`;
+  }
+
+  function tickMouse(dt) {
+    if (!propMouse || gameState.gameWon || gameState.levelCompleting) return;
+    const w = playfield.clientWidth;
+    const h = playfield.clientHeight;
+    const mw = propMouse.offsetWidth || 40;
+    const mh = propMouse.offsetHeight || 40;
+    mouseRun.x += mouseRun.vx * dt;
+    mouseRun.y += mouseRun.vy * dt;
+    if (mouseRun.x <= 0) {
+      mouseRun.x = 0;
+      mouseRun.vx = Math.abs(mouseRun.vx) + 12;
+    } else if (mouseRun.x > w - mw) {
+      mouseRun.x = w - mw;
+      mouseRun.vx = -Math.abs(mouseRun.vx) - 12;
+    }
+    if (mouseRun.y <= 0) {
+      mouseRun.y = 0;
+      mouseRun.vy = Math.abs(mouseRun.vy) + 12;
+    } else if (mouseRun.y > h - mh) {
+      mouseRun.y = h - mh;
+      mouseRun.vy = -Math.abs(mouseRun.vy) - 12;
+    }
+    if (Math.random() < 0.012) {
+      mouseRun.vx += (Math.random() - 0.5) * 100;
+      mouseRun.vy += (Math.random() - 0.5) * 100;
+    }
+    const msp = Math.hypot(mouseRun.vx, mouseRun.vy);
+    const cap = 195;
+    if (msp > cap) {
+      mouseRun.vx = (mouseRun.vx / msp) * cap;
+      mouseRun.vy = (mouseRun.vy / msp) * cap;
+    }
+    applyMousePosition();
+  }
+
+  function propPull(catCx, catCy, pcx, pcy, range, strength, dt) {
+    const dx = pcx - catCx;
+    const dy = pcy - catCy;
+    const d = Math.hypot(dx, dy);
+    if (d > range || d < 5) return { ax: 0, ay: 0 };
+    const nx = dx / d;
+    const ny = dy / d;
+    const falloff = 1 - d / range;
+    return { ax: nx * strength * falloff * dt, ay: ny * strength * falloff * dt };
+  }
+
+  function applyFieldForcesToCat(cat, size, effDt) {
+    const catCx = cat.x + size / 2;
+    const catCy = cat.y + size / 2;
+    let maxSpeed = 120;
+
+    if (dragBox) {
+      const bc = dragBox.center();
+      const bd = Math.hypot(catCx - bc.x, catCy - bc.y);
+      if (bd < BOX_RADIUS) {
+        maxSpeed = 74;
+        const bf = propPull(catCx, catCy, bc.x, bc.y, BOX_RADIUS, BOX_SLOW_PULL, effDt * 1.15);
+        cat.vx += bf.ax;
+        cat.vy += bf.ay;
+      }
+    }
+
+    if (dragLaser) {
+      const lc = dragLaser.center();
+      const lf = propPull(catCx, catCy, lc.x, lc.y, LASER_RANGE, LASER_STRENGTH, effDt);
+      cat.vx += lf.ax;
+      cat.vy += lf.ay;
+    }
+
+    if (dragYarn) {
+      const yc = dragYarn.center();
+      const yf = propPull(catCx, catCy, yc.x, yc.y, YARN_RANGE, YARN_STRENGTH, effDt);
+      cat.vx += yf.ax;
+      cat.vy += yf.ay;
+    }
+
+    if (propMouse) {
+      const mx = mouseRun.x + (propMouse.offsetWidth || 40) / 2;
+      const my = mouseRun.y + (propMouse.offsetHeight || 40) / 2;
+      const mf = propPull(catCx, catCy, mx, my, MOUSE_CHASE_RANGE, MOUSE_CHASE_STRENGTH, effDt);
+      cat.vx += mf.ax;
+      cat.vy += mf.ay;
+    }
+
+    return maxSpeed;
+  }
+
+  function tryMouseCatchByCat(cat, size) {
+    if (!propMouse || gameState.gameWon || gameState.levelCompleting) return;
+    const catCx = cat.x + size / 2;
+    const catCy = cat.y + size / 2;
+    const mx = mouseRun.x + (propMouse.offsetWidth || 40) / 2;
+    const my = mouseRun.y + (propMouse.offsetHeight || 40) / 2;
+    if (Math.hypot(catCx - mx, catCy - my) >= MOUSE_CATCH_DIST) return;
+    gameState.mouseCaught += 1;
+    sfx('mouse');
+    burstEmojis(['💨', '🐭', '⭐', '❗'], 5);
+    setAbsurdTicker(pick(QUIPS_MOUSE_CATCH));
+    showCatThought(cat, pick(['фастфуд', 'ой', 'быстро', 'вкусняшка???', 'не мышь а мечта']));
+    resetMouseRun();
+    updateHud();
+  }
+
   function showScreen(name) {
     screenGame.classList.toggle('screen--active', name === 'game');
     screenWin.classList.toggle('screen--active', name === 'win');
@@ -838,6 +1140,8 @@
     document.getElementById('stat-poops').textContent = String(gameState.poops.length);
     document.getElementById('stat-dogs').textContent = String(gameState.dogsLeft);
     document.getElementById('dogs-left-label').textContent = String(gameState.dogsLeft);
+    const sm = document.getElementById('stat-mouse');
+    if (sm) sm.textContent = String(gameState.mouseCaught);
 
     if (gameState.cats.length >= TOO_MANY_CATS) {
       setToast(pick(QUIPS_MANY_CATS), 0);
@@ -873,6 +1177,10 @@
     if (cat.poopTimeoutId) {
       clearTimeout(cat.poopTimeoutId);
       cat.poopTimeoutId = null;
+    }
+    if (cat.thoughtTimeoutId) {
+      clearTimeout(cat.thoughtTimeoutId);
+      cat.thoughtTimeoutId = null;
     }
     const i = gameState.cats.indexOf(cat);
     if (i !== -1) gameState.cats.splice(i, 1);
@@ -1103,6 +1411,7 @@
     clearAllEntities();
     resetFoodToCorner();
     resetTrashToCorner();
+    resetFieldProps();
     const cfg = getLevelConfig();
     for (let i = 0; i < 3; i += 1) spawnCat();
     gameState.spawnTimerId = window.setInterval(onSpawnTick, cfg.spawnMs);
@@ -1464,6 +1773,7 @@
     // Slow-mo halves speed
     const timeScale = document.body.classList.contains('chaos--slowmo') ? 0.35 : 1;
     const effDt = dt * timeScale;
+    tickMouse(effDt);
     gameState.cats.slice().forEach((cat) => {
       const size = catSizePx(cat);
 
@@ -1482,7 +1792,8 @@
         cat.vx += (Math.random() - 0.5) * 40;
         cat.vy += (Math.random() - 0.5) * 40;
       }
-      const maxSpeed = 120;
+
+      const maxSpeed = applyFieldForcesToCat(cat, size, effDt);
       const sp = Math.hypot(cat.vx, cat.vy);
       if (sp > maxSpeed) {
         cat.vx = (cat.vx / sp) * maxSpeed;
@@ -1508,6 +1819,7 @@
       }
 
       cat.el.style.transform = `translate(${cat.x}px, ${cat.y}px)`;
+      tryMouseCatchByCat(cat, size);
     });
   }
 
@@ -1591,6 +1903,18 @@
     if (!trashDragging) {
       syncTrashCornerCoords();
       applyTrashPosition();
+    }
+    if (dragLaser && !dragLaser.s.dragging) syncLaserCorner();
+    if (dragYarn && !dragYarn.s.dragging) syncYarnCorner();
+    if (dragBox && !dragBox.s.dragging) syncBoxCorner();
+    if (propMouse) {
+      const mw = propMouse.offsetWidth || 40;
+      const mh = propMouse.offsetHeight || 40;
+      const pw = playfield.clientWidth;
+      const ph = playfield.clientHeight;
+      mouseRun.x = Math.min(Math.max(0, mouseRun.x), Math.max(0, pw - mw));
+      mouseRun.y = Math.min(Math.max(0, mouseRun.y), Math.max(0, ph - mh));
+      applyMousePosition();
     }
     updateHud();
   });

@@ -27,11 +27,19 @@
         <span>Poops on screen: <strong id="stat-poops">0</strong></span>
         <span>Dogs left: <strong id="stat-dogs">3</strong></span>
         <span>Chaos: <strong id="stat-chaos">😐</strong></span>
+        <span>Mouse: <strong id="stat-mouse">0</strong></span>
       </div>
     </header>
 
     <div id="playfield" class="playfield">
       <div id="playfield-fx" class="playfield-fx" aria-hidden="true"></div>
+      <div id="prop-box" class="prop prop-box" title="Коробка: в зоне коты тормозят и тянутся внутрь">📦</div>
+      <div id="prop-yarn" class="prop prop-yarn" title="Клубок: притягивает шерстяных">🧶</div>
+      <div id="prop-mouse" class="prop prop-mouse" title="Мышь бегает сама — кто поймает?"><span>🐭</span></div>
+      <div id="laser" class="prop laser" title="Лазер: веди стадо за красной точкой">
+        <span class="laser__ring" aria-hidden="true"></span>
+        <span class="laser__dot" aria-hidden="true"></span>
+      </div>
       <img
         id="food"
         class="food draggable"
