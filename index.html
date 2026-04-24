@@ -3,18 +3,22 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cat Chaos Quest</title>
+  <title>Cat Chaos Quest — Theatre of the Absurd</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="noise" aria-hidden="true"></div>
+  <div class="scanlines" aria-hidden="true"></div>
   <div class="vignette" aria-hidden="true"></div>
+  <div id="global-rain" class="global-rain" aria-hidden="true"></div>
+  <div id="combo-display" class="combo-display" aria-hidden="true"></div>
+  <div id="secret-banner" class="secret-banner" aria-hidden="true"></div>
 
   <section id="screen-game" class="screen screen--active">
     <header class="hud">
-      <div class="hud__title glitch" data-text="CAT CHAOS">CAT CHAOS</div>
+      <div class="hud__title glitch" id="hud-title" data-text="CAT CHAOS">CAT CHAOS</div>
       <p id="absurd-ticker" class="absurd-ticker" aria-live="polite">
-        Добро пожаловать в театр абсурда. Правил нет, коты есть.
+        Добро пожаловать в театр абсурда. Правил нет, коты есть. Смысла — на вкус.
       </p>
       <div class="hud__stats">
         <span>Level: <strong id="stat-level">1</strong></span>
@@ -22,6 +26,7 @@
         <span>Cats on screen: <strong id="stat-cats">0</strong></span>
         <span>Poops on screen: <strong id="stat-poops">0</strong></span>
         <span>Dogs left: <strong id="stat-dogs">3</strong></span>
+        <span>Chaos: <strong id="stat-chaos">😐</strong></span>
       </div>
     </header>
 
@@ -44,7 +49,9 @@
 
     <div class="controls">
       <button type="button" id="btn-dog" class="btn btn--dog">RELEASE THE DOG</button>
-      <p id="dog-hint" class="controls__hint">Dogs left: <span id="dogs-left-label">3</span></p>
+      <button type="button" id="btn-party" class="btn btn--party" title="Включить дискотеку">🪩 PARTY MODE</button>
+      <button type="button" id="btn-chaos" class="btn btn--chaos" title="Случайный катаклизм">🎲 CHAOS DICE</button>
+      <p id="dog-hint" class="controls__hint">Dogs left: <span id="dogs-left-label">3</span> · Коды: ↑↑↓↓←→←→BA</p>
     </div>
 
     <div id="toast" class="toast" role="status" aria-live="polite"></div>
@@ -60,6 +67,7 @@
 
   <section id="screen-win" class="screen screen--win">
     <div id="win-fx" class="win-fx" aria-hidden="true"></div>
+    <div class="disco-ball" aria-hidden="true">🪩</div>
     <div class="win-card glitch" data-text="YOU SURVIVED THE CAT CHAOS">YOU SURVIVED THE CAT CHAOS</div>
     <p id="win-sub" class="win-sub">Аплодисменты слышны только в параллельной вселенной.</p>
     <button type="button" id="btn-unlock" class="btn btn--unlock">Открыть подарок</button>
@@ -70,7 +78,7 @@
     <p class="password-lead">
       Три символа подряд. Ниже три загадки: первая намекает на <strong>первый</strong> символ,
       вторая — на <strong>второй</strong>, третья — на <strong>третий</strong>.
-      Регистр буквы при вводе не важен.
+      Регистр буквы при вводе не важен. Коты не помогут. Они сами в шоке.
     </p>
     <form id="password-form" class="password-form" autocomplete="off">
       <label class="sr-only" for="password-input">Пароль из трёх символов</label>

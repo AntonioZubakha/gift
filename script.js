@@ -23,10 +23,13 @@
   ];
 
   const WRONG_PASSWORD_MSG_AFTER =
-    'Ну давай, ещё вариант. Ты почти у цели. Наверное.';
+    'Ну давай, ещё вариант. Ты почти у цели. Наверное. Возможно. В каком-то смысле.';
 
   const GIFT_EXTERNAL_URL = '';
   const GIFT_DOWNLOAD_PATH = 'assets/gift.pdf';
+
+  const KONAMI = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
+  let konamiIdx = 0;
 
   function normPwd(s) {
     return String(s || '')
@@ -45,6 +48,10 @@
     'Корм принят. Жалоб нет. Законов тоже.',
     'Кот поел. Вселенная всё ещё не объяснилась.',
     'Это был не кот. Это был акт голодного реализма.',
+    'Шеф-повар невидимого ресторана кивает.',
+    'Вкусно. Странно. Эффективно.',
+    'Кот покинул чат. Мурча.',
+    'Желудок — 1, Абсурд — ∞.',
   ];
   const QUIPS_PLOP = [
     'Инцидент зафиксирован. Мораль — по желанию.',
@@ -52,31 +59,37 @@
     'Новый артефакт на поле боя.',
     'Плотность абсурда ↑',
     'Кто-то оставил «визитку».',
+    'Художественный жест в стиле раннего постмодерна.',
+    'Это не баг. Это инсталляция.',
   ];
   const QUIPS_FLUSH = [
     'Чистота. Относительная. Как и всё здесь.',
-    'Ведро герой дня.',
+    'Ведро — герой дня.',
     'Утилизировано с достоинством.',
     'Пропало без следа. Как смысл.',
     'Хьюстон, проблема… решена?',
+    'Спасибо, что убрали. Коты не благодарят.',
   ];
   const QUIPS_SPAWN = [
     '+1 кот. −1 покой.',
     'Ещё один участник без репетиции.',
     'Кот материализовался. Законы ждут в коридоре.',
     'Пополнение. Зал аплодирует никто.',
+    'Родился в муках. Мучений будет больше.',
   ];
   const QUIPS_MANY_CATS = [
     'Котов столько, что они уже выбирают президента.',
     'Это не уровень — это митинг с усами.',
     'Скорость кормления: критически ниже скорости котов.',
     'Ты кормишь. Они множатся. Всё по плану без плана.',
+    'Профсоюз котов требует повышения зарплаты.',
   ];
   const QUIPS_MANY_POOPS = [
     'Ландшафт стал… выразительным.',
     'Тут уже нужен не ведро, а археолог.',
     'Ситуация перешла в жанр «трагикомедия».',
     'Эскалация одобрена сценарием.',
+    'Минкульт внёс в список наследия.',
   ];
   const QUIPS_IDLE = [
     'Подсказка: коты не читают инструкции.',
@@ -86,18 +99,27 @@
     'Если страшно — жми жёлтую кнопку. Если смешно — тоже.',
     'Этот уровень сертифицирован Министерством абсурда.',
     'Ты не проиграл, пока не начал драматически вздыхать.',
+    'Кликни по заголовку пять раз — жди сюрприз.',
+    'Секретный код: ↑↑↓↓←→←→BA. Работает, честно.',
+    '🪩 кнопка ничем не помогает. Но весело.',
+    'Жизнь — это уровень 1 с респавном багов.',
+    'Сегодня спонсор выпуска — хаос.',
   ];
   const OVERLAY_LINES = [
     { l1: 'Уровень пройден!', l2: 'Коты в ауте. Зрители — тоже.', l3: 'Следующий акт через 2 секунды.' },
     { l1: 'Браво! Шекспир бы заплакал.', l2: 'Или засмеялся. Он такой.', l3: 'Дальше — только хуже. В хорошем смысле.' },
     { l1: 'Победа условная.', l2: 'Но аплодисменты — безусловные.', l3: 'Готовься к новой волне хаоса.' },
     { l1: 'Куратор доволен.', l2: '(Куратора не существует.)', l3: 'Следующий уровень уже в кулисах.' },
+    { l1: 'Совет котов принял резолюцию.', l2: 'Кормить тебя обратно.', l3: 'Но сначала — следующий уровень.' },
+    { l1: 'Вы только что спасли вселенную.', l2: 'Точнее, одну конкретную комнату.', l3: 'Вселенная — в следующем раунде.' },
   ];
   const WIN_SUBS = [
     'Титры длиннее самой игры.',
     'Теперь ты официально в списках театра.',
     'Можно отдыхать. Коты — нет.',
     'Сертификат «пережил котохаос» выдаётся мысленно.',
+    'Нобелевка за терпение — в пути. Возможно.',
+    'Режиссёр снял шляпу. У него её не было.',
   ];
   const DOG_LABELS = [
     'ВЫПУСТИТЬ СОБАКУ',
@@ -106,12 +128,71 @@
     'ЛАЙ ВЫСШЕЙ ИНСТАНЦИИ',
     'СОБАКА.EXE',
     'РЕЖИМ: ПАНИКА',
+    'АКУСТИЧЕСКАЯ АТАКА',
+    'ГАВ-ГАВ (НЕ ЗЛО)',
   ];
   const PASSWORD_EXTRA_WRONG = [
     'Бип. Неверно. Бип. (мы роботы-абсурда)',
     'Близко. Нет, ладно, не близко.',
     'Пароль в другом замке. Шутка. Просто неверно.',
     'Драматическая пауза… всё ещё неверно.',
+    'Коты смотрят с осуждением.',
+    'Даже ChatGPT покраснел.',
+    'Мы верим в тебя. Ну, отчасти.',
+  ];
+
+  const CAT_THOUGHTS = [
+    'мяу?',
+    'где корм',
+    'я звезда',
+    'устал',
+    'не трогай',
+    'я главный',
+    'покормите меня',
+    'философски мурчу',
+    '418 — я чайник',
+    'верните 2007',
+    'зачем я здесь',
+    'это театр?',
+    'мур-мур-мур',
+    'котовасия',
+    'без комментариев',
+    'я нашёл смысл… потерял',
+    'картонная коробка где',
+    'вай-фай есть?',
+    '🐟',
+    'разыскиваю тунец',
+    'я левша',
+    'экзистенциальный кризис',
+  ];
+
+  const COMBO_LABELS = [
+    null, null,
+    'DOUBLE!',
+    'TRIPLE!',
+    'RAMPAGE!',
+    'DOMINATING!',
+    'UNSTOPPABLE!',
+    'MEGA COMBO!',
+    'KITTY GOD!',
+    'LEGENDARY!',
+    'ABSURD INFINITY!',
+  ];
+
+  const RAIN_EMOJIS = ['🐱','💩','🎉','✨','🌈','🪩','🍕','🦴','🐟','⭐','🎭','🔥','💫','🌀'];
+
+  const MOODS = ['neon', 'cyber', 'candy', 'toxic', 'hell'];
+
+  const CHAOS_EVENTS = [
+    'tilt',
+    'slowmo',
+    'rainbow',
+    'zoom',
+    'moodSwap',
+    'emojiRain',
+    'catThoughts',
+    'catDrunk',
+    'miniFlash',
   ];
 
   let sfxCtx = null;
@@ -195,6 +276,23 @@
         blip(200, 0.08, 'triangle', 0.12, 0);
         blip(350, 0.1, 'sine', 0.08, 0.04);
         break;
+      case 'combo':
+        blip(660, 0.06, 'triangle', 0.11, 0);
+        blip(990, 0.06, 'square', 0.08, 0.04);
+        blip(1320, 0.08, 'triangle', 0.07, 0.08);
+        break;
+      case 'disco':
+        blip(440, 0.05, 'square', 0.07, 0);
+        blip(660, 0.05, 'square', 0.07, 0.06);
+        blip(880, 0.05, 'square', 0.07, 0.12);
+        blip(1100, 0.06, 'square', 0.07, 0.18);
+        break;
+      case 'secret':
+        blip(523, 0.12, 'triangle', 0.12, 0);
+        blip(659, 0.12, 'triangle', 0.1, 0.08);
+        blip(784, 0.12, 'triangle', 0.1, 0.16);
+        blip(1046, 0.2, 'triangle', 0.12, 0.24);
+        break;
       default:
         break;
     }
@@ -239,8 +337,185 @@
     }
   }
 
+  // ====== GLOBAL EMOJI RAIN ======
+  function emojiRain(duration, density) {
+    const container = document.getElementById('global-rain');
+    if (!container) return;
+    const dur = duration || 3500;
+    const dens = density || 24;
+    const endAt = Date.now() + dur;
+    const spawn = () => {
+      if (Date.now() > endAt) return;
+      for (let i = 0; i < dens / 6; i += 1) {
+        const d = document.createElement('span');
+        d.className = 'rain-drop';
+        d.textContent = pick(RAIN_EMOJIS);
+        d.style.left = `${Math.random() * 100}%`;
+        const fallDur = 2500 + Math.random() * 2500;
+        d.style.animationDuration = `${fallDur}ms`;
+        d.style.animationDelay = `${Math.random() * 200}ms`;
+        d.style.fontSize = `${1 + Math.random() * 1.6}rem`;
+        container.appendChild(d);
+        window.setTimeout(() => d.remove(), fallDur + 400);
+      }
+      window.setTimeout(spawn, 180);
+    };
+    spawn();
+  }
+
+  // ====== CAT THOUGHT BUBBLES ======
+  function showCatThought(cat, text) {
+    if (!cat || !cat.el || !cat.el.isConnected) return;
+    const bubble = document.createElement('div');
+    bubble.className = 'cat-bubble';
+    bubble.textContent = text || pick(CAT_THOUGHTS);
+    const size = catSizePx(cat);
+    bubble.style.left = `${cat.x + size / 2}px`;
+    bubble.style.top = `${cat.y}px`;
+    playfield.appendChild(bubble);
+    window.setTimeout(() => bubble.remove(), 2500);
+  }
+
+  function sprinkleCatThoughts(intensity) {
+    const n = intensity || 1;
+    gameState.cats.forEach((cat) => {
+      if (Math.random() < 0.55 * n) {
+        window.setTimeout(() => showCatThought(cat), Math.random() * 1500);
+      }
+    });
+  }
+
+  // ====== SPARKLE TRAIL ======
+  function sparkleAt(x, y, emoji) {
+    const sp = document.createElement('span');
+    sp.className = 'sparkle';
+    sp.textContent = emoji || pick(['✨', '⭐', '💫', '·']);
+    sp.style.left = `${x}px`;
+    sp.style.top = `${y}px`;
+    playfield.appendChild(sp);
+    window.setTimeout(() => sp.remove(), 900);
+  }
+
+  // ====== COMBO SYSTEM ======
+  const combo = { count: 0, lastAt: 0, resetTimer: null };
+  const COMBO_WINDOW_MS = 2800;
+  function bumpCombo() {
+    const now = Date.now();
+    if (now - combo.lastAt < COMBO_WINDOW_MS) {
+      combo.count += 1;
+    } else {
+      combo.count = 1;
+    }
+    combo.lastAt = now;
+    if (combo.resetTimer) clearTimeout(combo.resetTimer);
+    combo.resetTimer = window.setTimeout(() => {
+      combo.count = 0;
+    }, COMBO_WINDOW_MS + 300);
+
+    if (combo.count >= 2) {
+      const label = COMBO_LABELS[Math.min(combo.count, COMBO_LABELS.length - 1)] || `×${combo.count}!`;
+      showComboDisplay(`×${combo.count} ${label}`);
+      sfx('combo');
+      if (combo.count >= 5) {
+        bodyShake();
+        burstEmojis(['🔥', '⭐', '💫', '🏆'], 6);
+      }
+    }
+  }
+  function showComboDisplay(text) {
+    const el = document.getElementById('combo-display');
+    if (!el) return;
+    el.textContent = text;
+    el.classList.remove('active');
+    void el.offsetWidth;
+    el.classList.add('active');
+  }
+
+  // ====== SECRET BANNER ======
+  function showSecretBanner(text) {
+    const el = document.getElementById('secret-banner');
+    if (!el) return;
+    el.innerHTML = '';
+    const inner = document.createElement('div');
+    inner.className = 'secret-banner__inner';
+    inner.textContent = text;
+    el.appendChild(inner);
+    el.classList.remove('active');
+    void el.offsetWidth;
+    el.classList.add('active');
+    window.setTimeout(() => el.classList.remove('active'), 1800);
+  }
+
+  // ====== CHAOS EVENT SYSTEM ======
+  let chaosLevel = 0;
+  function updateChaosMeter() {
+    const el = document.getElementById('stat-chaos');
+    if (!el) return;
+    const emo = ['😐', '🙂', '😵', '🤯', '🌪️', '💀', '☠️'];
+    const idx = Math.min(emo.length - 1, Math.floor(chaosLevel));
+    el.textContent = emo[idx];
+  }
+
+  function runChaosEvent(forced) {
+    const ev = forced || pick(CHAOS_EVENTS);
+    chaosLevel = Math.min(chaosLevel + 0.5, 6);
+    updateChaosMeter();
+    switch (ev) {
+      case 'tilt':
+        document.body.classList.add('chaos--tilt');
+        setAbsurdTicker('Режиссёр наклонил сцену. На всякий случай.');
+        window.setTimeout(() => document.body.classList.remove('chaos--tilt'), 4000);
+        break;
+      case 'slowmo':
+        document.body.classList.add('chaos--slowmo');
+        setAbsurdTicker('Время — понятие условное. Сейчас — особенно.');
+        window.setTimeout(() => document.body.classList.remove('chaos--slowmo'), 3500);
+        break;
+      case 'rainbow':
+        document.body.classList.add('chaos--rainbow');
+        setAbsurdTicker('Радужный синдром активирован. Плачут единороги.');
+        window.setTimeout(() => document.body.classList.remove('chaos--rainbow'), 3500);
+        break;
+      case 'zoom':
+        document.body.classList.add('chaos--zoom');
+        setAbsurdTicker('Камера решила, что она режиссёр.');
+        window.setTimeout(() => document.body.classList.remove('chaos--zoom'), 3000);
+        break;
+      case 'moodSwap': {
+        MOODS.forEach((m) => document.body.classList.remove(`mood--${m}`));
+        const m = pick(MOODS);
+        document.body.classList.add(`mood--${m}`);
+        setAbsurdTicker(`Палитра: ${m.toUpperCase()}. Вкус — на ваш страх.`);
+        window.setTimeout(() => document.body.classList.remove(`mood--${m}`), 6000);
+        break;
+      }
+      case 'emojiRain':
+        emojiRain(2800, 22);
+        setAbsurdTicker('Метеоритный дождь эмодзи. Без шлемов.');
+        break;
+      case 'catThoughts':
+        sprinkleCatThoughts(1.2);
+        setAbsurdTicker('Коты подумали вслух. Некоторые — слишком.');
+        break;
+      case 'catDrunk':
+        gameState.cats.forEach((c) => c.el.classList.add('cat--drunk'));
+        setAbsurdTicker('Кошачий бар только что закрылся.');
+        window.setTimeout(() => {
+          gameState.cats.forEach((c) => c.el.classList.remove('cat--drunk'));
+        }, 4000);
+        break;
+      case 'miniFlash':
+        playfieldFlash();
+        burstEmojis(['⚡', '💥', '🌟'], 6);
+        break;
+      default:
+        break;
+    }
+  }
+
   let dogLabelSpin = 0;
   let absurdIdleTimer = null;
+  let chaosEventTimer = null;
 
   function startAbsurdIdle() {
     if (absurdIdleTimer) clearInterval(absurdIdleTimer);
@@ -249,6 +524,20 @@
       if (gameState.levelCompleting) return;
       maybe(0.55, () => setAbsurdTicker(pick(QUIPS_IDLE)));
     }, 14000);
+  }
+
+  function startChaosLoop() {
+    if (chaosEventTimer) clearInterval(chaosEventTimer);
+    chaosEventTimer = window.setInterval(() => {
+      if (!screenGame.classList.contains('screen--active') || gameState.gameWon) return;
+      if (gameState.levelCompleting) return;
+      // Chance increases with level
+      const chance = 0.4 + Math.min(0.4, gameState.level * 0.08);
+      maybe(chance, () => runChaosEvent());
+      // Chaos cool-down
+      chaosLevel = Math.max(0, chaosLevel - 0.3);
+      updateChaosMeter();
+    }, 11000);
   }
 
   let nextId = 1;
@@ -273,6 +562,8 @@
   const dogOverlay = document.getElementById('dog-overlay');
   const dogImg = document.getElementById('dog-img');
   const btnDog = document.getElementById('btn-dog');
+  const btnParty = document.getElementById('btn-party');
+  const btnChaos = document.getElementById('btn-chaos');
   const toast = document.getElementById('toast');
   const levelOverlay = document.getElementById('level-overlay');
   const barkAudio = document.getElementById('bark-audio');
@@ -309,6 +600,7 @@
   let foodOverlapCat = null;
   let foodReturnEndHandler = null;
   let foodReturnFallbackId = null;
+  let lastSparkleAt = 0;
 
   let trashX = 0;
   let trashY = 0;
@@ -525,6 +817,7 @@
       window.setTimeout(() => {
         burstEmojis(['🎉', '🐱', '🎊', '✨', '😵', '🏆'], 18, wf);
       }, 80);
+      emojiRain(4000, 30);
     }
   }
 
@@ -557,6 +850,7 @@
     }
 
     updateDogButton();
+    updateChaosMeter();
   }
 
   function updateDogButton() {
@@ -656,6 +950,15 @@
     }, delay);
   }
 
+  function scheduleCatThought(cat) {
+    const delay = 4000 + Math.random() * 9000;
+    cat.thoughtTimeoutId = window.setTimeout(() => {
+      if (!cat.el.isConnected) return;
+      if (Math.random() < 0.5) showCatThought(cat);
+      scheduleCatThought(cat);
+    }, delay);
+  }
+
   function spawnCat() {
     if (gameState.gameWon || gameState.levelCompleting) return;
     const w = playfield.clientWidth;
@@ -684,11 +987,13 @@
       vy: Math.sin(angle) * speed,
       scared: false,
       poopTimeoutId: null,
+      thoughtTimeoutId: null,
     };
 
     el.style.transform = `translate(${x}px, ${y}px)`;
     gameState.cats.push(cat);
     schedulePoopAttempts(cat);
+    scheduleCatThought(cat);
     maybe(0.12, () => sfx('spawn'));
     maybe(0.14, () => setAbsurdTicker(pick(QUIPS_SPAWN)));
     maybe(0.08, () => burstEmojis(['🐱', '❓', '➕'], 2));
@@ -733,6 +1038,7 @@
     sfx('feed');
     setAbsurdTicker(pick(QUIPS_FEED));
     maybe(0.45, () => burstEmojis(['😺', '🍽️', '✨', '⭐'], 5));
+    bumpCombo();
     removeCat(cat);
     updateHud();
     tryCheckLevelClear();
@@ -764,6 +1070,7 @@
     bodyShake();
     playfieldFlash();
     burstEmojis(['🎭', '✨', '🏆', '👏', '😵'], 10);
+    emojiRain(1800, 16);
     const lines = pick(OVERLAY_LINES);
     const o1 = document.getElementById('overlay-l1');
     const o2 = document.getElementById('overlay-l2');
@@ -802,6 +1109,7 @@
     sfx('boing');
     setAbsurdTicker(`Уровень ${gameState.level}. Занавес вверх. Коты вниз.`);
     startAbsurdIdle();
+    startChaosLoop();
     updateHud();
   }
 
@@ -866,6 +1174,113 @@
   btnDog.addEventListener('click', () => {
     activateNormalDog();
   });
+
+  // ===== PARTY MODE =====
+  let partyOn = false;
+  let megaParty = false;
+  let partyTimer = null;
+  function togglePartyMode() {
+    partyOn = !partyOn;
+    document.body.classList.toggle('party', partyOn);
+    btnParty.classList.toggle('active', partyOn);
+    if (partyOn) {
+      setAbsurdTicker('🪩 PARTY MODE: ON. Коты тоже пляшут. Плохо, но искренне.');
+      sfx('disco');
+      emojiRain(1600, 18);
+      if (partyTimer) clearInterval(partyTimer);
+      partyTimer = window.setInterval(() => {
+        if (!partyOn) return;
+        sfx('disco');
+        maybe(0.7, () => burstEmojis(['🪩','💃','🕺','✨','🎶'], 4));
+      }, 2500);
+    } else {
+      setAbsurdTicker('Дискотека закрыта. Техничка выключила свет.');
+      if (partyTimer) clearInterval(partyTimer);
+      partyTimer = null;
+    }
+  }
+  btnParty.addEventListener('click', togglePartyMode);
+
+  btnChaos.addEventListener('click', () => {
+    runChaosEvent();
+    sfx('boing');
+    burstEmojis(['🎲','❓','⚡','🌀'], 5);
+  });
+
+  // ===== KONAMI CODE =====
+  window.addEventListener('keydown', (e) => {
+    const key = e.key;
+    const expected = KONAMI[konamiIdx];
+    if (!expected) return;
+    const match = key === expected || key.toLowerCase() === expected.toLowerCase();
+    if (match) {
+      konamiIdx += 1;
+      if (konamiIdx >= KONAMI.length) {
+        konamiIdx = 0;
+        activateMegaParty();
+      }
+    } else {
+      konamiIdx = 0;
+    }
+  });
+
+  function activateMegaParty() {
+    megaParty = true;
+    document.body.classList.add('party', 'mega-party');
+    btnParty.classList.add('active');
+    partyOn = true;
+    showSecretBanner('MEGA PARTY UNLOCKED');
+    sfx('secret');
+    emojiRain(8000, 60);
+    setAbsurdTicker('МЕГА-ПАРТИ. Котов перестало волновать всё. Молодцы.');
+
+    // Grant infinite dogs + reset cooldown
+    gameState.dogsLeft = 99;
+    gameState.dogCooldown = false;
+    updateHud();
+
+    // Random chaos storm
+    for (let i = 0; i < 5; i += 1) {
+      window.setTimeout(() => runChaosEvent(), i * 1200 + 400);
+    }
+
+    // Cats go mega
+    gameState.cats.forEach((c) => c.el.classList.add('cat--mega'));
+    window.setTimeout(() => {
+      gameState.cats.forEach((c) => c.el.classList.remove('cat--mega'));
+    }, 6000);
+  }
+
+  // ===== TITLE EASTER EGG (click 5x = meow storm) =====
+  let titleClicks = 0;
+  let titleClickTimer = null;
+  const hudTitle = document.getElementById('hud-title');
+  if (hudTitle) {
+    hudTitle.addEventListener('click', () => {
+      titleClicks += 1;
+      if (titleClickTimer) clearTimeout(titleClickTimer);
+      titleClickTimer = window.setTimeout(() => { titleClicks = 0; }, 2500);
+      if (titleClicks >= 5) {
+        titleClicks = 0;
+        meowStorm();
+      }
+    });
+  }
+
+  function meowStorm() {
+    showSecretBanner('MEOW STORM');
+    sfx('secret');
+    for (let i = 0; i < 8; i += 1) {
+      window.setTimeout(() => {
+        // spawn a cat
+        spawnCat();
+        const c = gameState.cats[gameState.cats.length - 1];
+        if (c) showCatThought(c, pick(['МЯУ','МЯУ!','МЯУ?','МЯЯЯ','мррр','мр-мр-мр','👑']));
+      }, i * 150);
+    }
+    burstEmojis(['🐱','😼','😻','😹','😿','👑'], 10);
+    emojiRain(3000, 28);
+  }
 
   function rectsOverlap(a, b) {
     return a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
@@ -1019,6 +1434,13 @@
         foodY = ny;
         applyFoodPosition();
         checkFoodCatOverlap();
+
+        // Sparkle trail
+        const now = performance.now();
+        if (now - lastSparkleAt > 55) {
+          lastSparkleAt = now;
+          sparkleAt(foodX + 20 + Math.random() * 20, foodY + 20 + Math.random() * 20);
+        }
       });
     });
 
@@ -1039,12 +1461,15 @@
   function tickCats(dt) {
     const w = playfield.clientWidth;
     const h = playfield.clientHeight;
+    // Slow-mo halves speed
+    const timeScale = document.body.classList.contains('chaos--slowmo') ? 0.35 : 1;
+    const effDt = dt * timeScale;
     gameState.cats.slice().forEach((cat) => {
       const size = catSizePx(cat);
 
       if (cat.scared) {
-        cat.x += cat.vx * dt;
-        cat.y += cat.vy * dt;
+        cat.x += cat.vx * effDt;
+        cat.y += cat.vy * effDt;
         if (cat.x < -size || cat.x > w + size || cat.y < -size || cat.y > h + size) {
           removeCat(cat);
         } else {
@@ -1064,8 +1489,8 @@
         cat.vy = (cat.vy / sp) * maxSpeed;
       }
 
-      cat.x += cat.vx * dt;
-      cat.y += cat.vy * dt;
+      cat.x += cat.vx * effDt;
+      cat.y += cat.vy * effDt;
 
       if (cat.x <= 0) {
         cat.x = 0;
@@ -1111,6 +1536,7 @@
       gameState.passwordAttempts = 0;
       sfx('win');
       setAbsurdTicker('Доступ. Или иллюзия доступа. В любом случае — молодец.');
+      emojiRain(2500, 30);
       if (GIFT_EXTERNAL_URL && GIFT_EXTERNAL_URL.length > 0) {
         window.open(GIFT_EXTERNAL_URL, '_blank', 'noopener,noreferrer');
       }
@@ -1128,8 +1554,24 @@
       return;
     }
 
+    // Secret easter eggs on wrong password
+    if (val === 'кот' || val === 'cat') {
+      msg.textContent = 'Коты одобряют, но это не пароль. 🐱';
+      sfx('combo');
+      burstEmojis(['🐱','😼','😻'], 6, document.getElementById('global-rain'));
+      return;
+    }
+    if (val === '666' || val === 'лол' || val === 'lol') {
+      msg.textContent = 'Смешно. Но нет.';
+      sfx('wrong');
+      return;
+    }
+
     gameState.passwordAttempts += 1;
     sfx('wrong');
+    input.classList.remove('shake');
+    void input.offsetWidth;
+    input.classList.add('shake');
     const i = gameState.passwordAttempts;
     let line = i <= 3 ? WRONG_PASSWORD_MSG[i - 1] : WRONG_PASSWORD_MSG_AFTER;
     if (Math.random() < 0.5) {
