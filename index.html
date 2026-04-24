@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cat Chaos Quest</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="noise" aria-hidden="true"></div>
+
+  <section id="screen-game" class="screen screen--active">
+    <header class="hud">
+      <div class="hud__title glitch" data-text="CAT CHAOS">CAT CHAOS</div>
+      <div class="hud__stats">
+        <span>Level: <strong id="stat-level">1</strong></span>
+        <span>Cats fed: <strong id="stat-fed">0</strong></span>
+        <span>Cats on screen: <strong id="stat-cats">0</strong></span>
+        <span>Poops on screen: <strong id="stat-poops">0</strong></span>
+        <span>Dogs left: <strong id="stat-dogs">3</strong></span>
+      </div>
+    </header>
+
+    <div id="playfield" class="playfield">
+      <img
+        id="food"
+        class="food draggable"
+        src="assets/food.png"
+        alt="Food"
+        draggable="false"
+      />
+      <div id="trash" class="trash">
+        <img src="assets/trashbin.png" alt="Trash bin" draggable="false" />
+      </div>
+      <div id="dog-overlay" class="dog-overlay" aria-hidden="true">
+        <img id="dog-img" src="assets/dog/dog.gif" alt="" />
+      </div>
+    </div>
+
+    <div class="controls">
+      <button type="button" id="btn-dog" class="btn btn--dog">RELEASE THE DOG</button>
+      <p id="dog-hint" class="controls__hint">Dogs left: <span id="dogs-left-label">3</span></p>
+    </div>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+    <div id="level-overlay" class="overlay overlay--hidden">
+      <div class="overlay__box">
+        <p>Congratulations!</p>
+        <p>You handled the cat chaos.</p>
+        <p>Next level.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="screen-win" class="screen">
+    <div class="win-card glitch" data-text="YOU SURVIVED THE CAT CHAOS">YOU SURVIVED THE CAT CHAOS</div>
+    <button type="button" id="btn-unlock" class="btn btn--unlock">Открыть подарок</button>
+  </section>
+
+  <section id="screen-password" class="screen">
+    <h1 class="password-title">Пароль</h1>
+    <p class="password-lead">
+      Три символа подряд. Ниже три загадки: первая намекает на <strong>первый</strong> символ,
+      вторая — на <strong>второй</strong>, третья — на <strong>третий</strong>.
+      Регистр буквы при вводе не важен.
+    </p>
+    <form id="password-form" class="password-form" autocomplete="off">
+      <label class="sr-only" for="password-input">Пароль из трёх символов</label>
+      <input
+        id="password-input"
+        type="text"
+        class="password-input password-input--main"
+        placeholder="•••"
+        maxlength="3"
+        autocapitalize="off"
+        autocomplete="off"
+        spellcheck="false"
+      />
+      <button type="submit" class="btn">Проверить</button>
+    </form>
+    <p id="password-msg" class="password-msg" role="status"></p>
+
+    <div class="riddle-stages">
+      <article class="riddle-stage">
+        <h2 class="riddle-stage__title">🎭 Загадка №1</h2>
+        <p class="riddle-stage__meta">Подсказка на <strong>первый</strong> символ пароля</p>
+        <div class="riddle-stage__verses">
+          <p>Я часть триады, где первая — «A», последняя — «E».</p>
+          <p>Меня часто используют как обозначение скорости света, но в алфавите я всего лишь сосед двух букв.</p>
+          <p class="riddle-stage__question">Что я?</p>
+        </div>
+      </article>
+
+      <article class="riddle-stage">
+        <h2 class="riddle-stage__title">🎭 Загадка №2</h2>
+        <p class="riddle-stage__meta">Подсказка на <strong>второй</strong> символ пароля</p>
+        <div class="riddle-stage__verses">
+          <p>Я единственный, кто не делится ни на кого, но без меня не начнётся ни счёт, ни игра.</p>
+          <p>Я стою в начале, но не имею пары.</p>
+          <p class="riddle-stage__question">Что я?</p>
+        </div>
+      </article>
+
+      <article class="riddle-stage">
+        <h2 class="riddle-stage__title">🎭 Загадка №3</h2>
+        <p class="riddle-stage__meta">Подсказка на <strong>третий</strong> символ пароля</p>
+        <div class="riddle-stage__verses">
+          <p>Я число, которое любят в сказках, меня ищут в трёх желаниях и трёх испытаниях.</p>
+          <p>Я не первый и не второй, но всегда магический.</p>
+          <p class="riddle-stage__question">Что я?</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <audio id="bark-audio" preload="auto">
+    <source src="assets/sounds/bark.mp3" type="audio/mpeg" />
+  </audio>
+
+  <script src="script.js"></script>
+</body>
+</html>
